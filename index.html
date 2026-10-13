@@ -410,6 +410,17 @@ setTimeout(done,4500);
         <button data-act="copy">Copier <kbd>Ctrl+C</kbd></button>
         <button data-act="cut">Couper <kbd>Ctrl+X</kbd></button>
         <button data-act="pastehint">Coller (nouveau calque) <kbd>Ctrl+V</kbd></button>
+        <hr>
+        <div class="mlabel">Transformer le contenu sélectionné</div>
+        <button data-act="xf:free">Rotation / échelle libre… <kbd>Ctrl+T</kbd></button>
+        <button data-act="xf:distort">Déformer (perspective)…</button>
+        <button data-act="xf:r90">Rotation 90° horaire</button>
+        <button data-act="xf:r-90">Rotation 90° anti-horaire</button>
+        <button data-act="xf:r180">Rotation 180°</button>
+        <button data-act="xf:fh">Miroir horizontal</button>
+        <button data-act="xf:fv">Miroir vertical</button>
+        <button data-act="xf:ch">Copie miroir horizontale</button>
+        <button data-act="xf:cv">Copie miroir verticale</button>
       </div>
     </div>
     <div class="dd"><button class="hbtn" data-menu="m-filters" title="Filtres et réglages de couleur"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15.5l-1.9-4.6L5.5 9l4.6-1.4z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg><span class="lbl">Filtres</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg></button>
@@ -563,6 +574,9 @@ const IC = {
   arrow: SV('<path d="M4 20 19 5"/><path d="M10 5h9v9"/>'),
   polygon: SV('<path d="m12 2.5 2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2l-5.9 3.2 1.3-6.5-4.9-4.6 6.6-.8z" fill="currentColor" fill-opacity=".25"/>'),
   measure: SV('<path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0z"/><path d="m14.5 12.5 2-2M11.5 9.5l2-2M8.5 6.5l2-2M17.5 15.5l2-2"/>'),
+  xmirror: SV('<path d="M12 2v20" stroke-dasharray="2.5 2.5"/><path d="M9 6 3 18h6z" fill="currentColor" fill-opacity=".3"/><path d="m15 6 6 12h-6z"/>'),
+  xrotate: SV('<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor" fill-opacity=".3"/>'),
+  xdistort: SV('<path d="M4 6 20 3l-2 18L6 17z" fill="currentColor" fill-opacity=".2"/><circle cx="4" cy="6" r="1.7" fill="currentColor"/><circle cx="20" cy="3" r="1.7" fill="currentColor"/><circle cx="18" cy="21" r="1.7" fill="currentColor"/><circle cx="6" cy="17" r="1.7" fill="currentColor"/>'),
   zoomout: SV('<circle cx="11" cy="11" r="7"/><path d="m21 21-5-5M8 11h6"/>'),
   clone: SV('<path d="M5 22h14"/><path d="M19.3 13.7A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.7-.3-1.3-.7-1.8z"/><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-6 0c0 2 1 2 1 3.5V13"/>'),
   eye: SV('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
@@ -741,7 +755,8 @@ function draw() {
     c.strokeRect(sx + l.x * cam.z + .5, sy + l.y * cam.z + .5, l.canvas.width * cam.z, l.canvas.height * cam.z); c.restore();
   }
   // sélection (fourmis)
-  if (sel) drawAnts(c, sel.segs);
+  if (sel && !xf) drawAnts(c, sel.segs);
+  if (xf) drawXf(c);
   // aperçus d'outils
   if (drag && drag.kind === 'marquee') drawShapeOutline(c, drag.shape, drag.rect);
   if (drag && drag.kind === 'lasso' && drag.pts.length > 1) {
@@ -1257,7 +1272,141 @@ function changeCanvas(w, h, dx, dy) {
   if (sel) { const m = mkCanvas(w, h); m.getContext('2d').drawImage(sel.mask, dx, dy); doc.w = w; doc.h = h; setSelection(m); }
   doc.w = w; doc.h = h; ensureBuffers(); renderLayers(); fit(); req(true); updateStatus();
 }
-function cancelTransient() { cropRect = null; if (drag && drag.kind !== 'pan') drag = null; if (override && !filterPreviewActive) override = null; }
+/* ---------------- transformation de la sélection (miroir, rotation, échelle, déformation) ---------------- */
+let xf = null;
+function startTransform(mode, o = {}) {
+  if (textEdit) commitText(); if (!editable()) return false;
+  const l = L(), b = sel ? { ...sel.bbox } : { x: 0, y: 0, w: doc.w, h: doc.h };
+  const fl = mkCanvas(b.w, b.h), fc = fl.getContext('2d'); fc.drawImage(l.canvas, l.x - b.x, l.y - b.y);
+  if (sel) { fc.globalCompositeOperation = 'destination-in'; fc.drawImage(sel.mask, -b.x, -b.y); }
+  const base = cloneCanvas(l.canvas), bc = base.getContext('2d');
+  if (!o.copy) { if (sel) { bc.globalCompositeOperation = 'destination-out'; bc.drawImage(sel.mask, -l.x, -l.y); } else bc.clearRect(0, 0, base.width, base.height); }
+  xf = { l, fl, base, mode: 'affine', copy: !!o.copy, oldSel: sel, cx: b.x + b.w / 2, cy: b.y + b.h / 2, w: b.w, h: b.h, ang: (o.rot || 0) * Math.PI / 180, fx: o.flip === 'h' ? -1 : 1, fy: o.flip === 'v' ? -1 : 1, quad: null };
+  if (o.copy) { if (o.flip === 'h') xf.cx += b.w; else xf.cy += b.h; }
+  if (mode === 'distort') toDistort();
+  renderXf(); renderOptbar(); updateXfButtons(); return true;
+}
+function xfCorners() { // coins de l'image source TL, TR, BR, BL dans le document
+  const c = Math.cos(xf.ang), s = Math.sin(xf.ang);
+  return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([u, v]) => { const lx = u * xf.w / 2 * xf.fx, ly = v * xf.h / 2 * xf.fy; return { x: xf.cx + lx * c - ly * s, y: xf.cy + lx * s + ly * c }; });
+}
+function toDistort() { xf.quad = xfCorners(); xf.mode = 'distort'; }
+function homography(q) {
+  const [p0, p1, p2, p3] = q, dx1 = p1.x - p2.x, dx2 = p3.x - p2.x, dx3 = p0.x - p1.x + p2.x - p3.x, dy1 = p1.y - p2.y, dy2 = p3.y - p2.y, dy3 = p0.y - p1.y + p2.y - p3.y;
+  let g = 0, h = 0; const den = dx1 * dy2 - dx2 * dy1;
+  if ((Math.abs(dx3) > 1e-9 || Math.abs(dy3) > 1e-9) && Math.abs(den) > 1e-9) { g = (dx3 * dy2 - dx2 * dy3) / den; h = (dx1 * dy3 - dx3 * dy1) / den; }
+  const a = p1.x - p0.x + g * p1.x, b = p3.x - p0.x + h * p3.x, d = p1.y - p0.y + g * p1.y, e = p3.y - p0.y + h * p3.y;
+  return (u, v) => { const w = g * u + h * v + 1; return { x: (a * u + b * v + p0.x) / w, y: (d * u + e * v + p0.y) / w }; };
+}
+function drawTri(ctx, img, s0, s1, s2, d0, d1, d2) {
+  const den = s0.x * (s1.y - s2.y) + s1.x * (s2.y - s0.y) + s2.x * (s0.y - s1.y); if (Math.abs(den) < 1e-9) return;
+  const a = (d0.x * (s1.y - s2.y) + d1.x * (s2.y - s0.y) + d2.x * (s0.y - s1.y)) / den, b = (d0.y * (s1.y - s2.y) + d1.y * (s2.y - s0.y) + d2.y * (s0.y - s1.y)) / den;
+  const c = (d0.x * (s2.x - s1.x) + d1.x * (s0.x - s2.x) + d2.x * (s1.x - s0.x)) / den, d = (d0.y * (s2.x - s1.x) + d1.y * (s0.x - s2.x) + d2.y * (s1.x - s0.x)) / den;
+  const e = (d0.x * (s1.x * s2.y - s2.x * s1.y) + d1.x * (s2.x * s0.y - s0.x * s2.y) + d2.x * (s0.x * s1.y - s1.x * s0.y)) / den;
+  const f = (d0.y * (s1.x * s2.y - s2.x * s1.y) + d1.y * (s2.x * s0.y - s0.x * s2.y) + d2.y * (s0.x * s1.y - s1.x * s0.y)) / den;
+  // léger agrandissement du triangle de découpe pour éviter les fentes entre triangles
+  const gx = (d0.x + d1.x + d2.x) / 3, gy = (d0.y + d1.y + d2.y) / 3, gr = p => { const dx = p.x - gx, dy = p.y - gy, L = Math.hypot(dx, dy) || 1; return { x: p.x + dx / L * .7, y: p.y + dy / L * .7 }; };
+  const [e0, e1, e2] = [gr(d0), gr(d1), gr(d2)];
+  ctx.save(); ctx.beginPath(); ctx.moveTo(e0.x, e0.y); ctx.lineTo(e1.x, e1.y); ctx.lineTo(e2.x, e2.y); ctx.closePath(); ctx.clip();
+  ctx.transform(a, b, c, d, e, f); ctx.drawImage(img, 0, 0); ctx.restore();
+}
+function drawQuad(ctx, img, q, n) {
+  const H = homography(q), W = img.width, Hh = img.height, P = [];
+  for (let j = 0; j <= n; j++) { P[j] = []; for (let i = 0; i <= n; i++) P[j][i] = H(i / n, j / n); }
+  for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) {
+    const s00 = { x: W * i / n, y: Hh * j / n }, s10 = { x: W * (i + 1) / n, y: Hh * j / n }, s11 = { x: W * (i + 1) / n, y: Hh * (j + 1) / n }, s01 = { x: W * i / n, y: Hh * (j + 1) / n };
+    drawTri(ctx, img, s00, s10, s11, P[j][i], P[j][i + 1], P[j + 1][i + 1]); drawTri(ctx, img, s00, s11, s01, P[j][i], P[j + 1][i + 1], P[j + 1][i]);
+  }
+}
+function drawFloating(ctx, ox, oy, fine) {
+  ctx.save(); ctx.imageSmoothingQuality = 'high';
+  if (xf.mode === 'distort') drawQuad(ctx, xf.fl, xf.quad.map(p => ({ x: p.x - ox, y: p.y - oy })), fine ? 28 : 12);
+  else { ctx.translate(xf.cx - ox, xf.cy - oy); ctx.rotate(xf.ang); ctx.scale(xf.fx * xf.w / xf.fl.width, xf.fy * xf.h / xf.fl.height); ctx.drawImage(xf.fl, -xf.fl.width / 2, -xf.fl.height / 2); }
+  ctx.restore();
+}
+function renderXf(fine) {
+  const out = cloneCanvas(xf.base); drawFloating(out.getContext('2d'), xf.l.x, xf.l.y, fine);
+  override = { layer: xf.l, canvas: out }; req(true); return out;
+}
+function commitTransform() {
+  if (!xf) return; const out = renderXf(true), l = xf.l;
+  pushPx(l); const c = l.canvas.getContext('2d'); c.clearRect(0, 0, l.canvas.width, l.canvas.height); c.drawImage(out, 0, 0);
+  const m = mkCanvas(doc.w, doc.h), mc = m.getContext('2d'); drawFloating(mc, 0, 0, true); mc.globalCompositeOperation = 'source-in'; mc.fillStyle = '#fff'; mc.fillRect(0, 0, doc.w, doc.h);
+  xf = null; override = null; setSelection(m); afterPixelEdit(l); renderOptbar(); updateXfButtons();
+}
+function cancelTransform() { if (!xf) return; sel = xf.oldSel; xf = null; override = null; req(true); renderOptbar(); updateXfButtons(); }
+function updateXfButtons() { $$('[data-xf]').forEach(b => b.classList.toggle('active', !!xf && (b.dataset.xf === 'distort' ? xf.mode === 'distort' : b.dataset.xf === 'mirror' ? xf.copy && xf.mode !== 'distort' : xf.mode === 'affine' && !xf.copy))); }
+function xfHandles() { // poignées en coordonnées écran
+  const S = p => ({ x: cam.x + p.x * cam.z, y: cam.y + p.y * cam.z });
+  if (xf.mode === 'distort') return xf.quad.map((p, i) => ({ id: 'q' + i, ...S(p) }));
+  const c = Math.cos(xf.ang), s = Math.sin(xf.ang), hs = [];
+  for (const [hx, hy] of [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]]) { const lx = hx * xf.w / 2, ly = hy * xf.h / 2; hs.push({ id: 's' + hx + ',' + hy, hx, hy, ...S({ x: xf.cx + lx * c - ly * s, y: xf.cy + lx * s + ly * c }) }); }
+  const top = S({ x: xf.cx + (xf.h / 2) * s, y: xf.cy - (xf.h / 2) * c }); hs.push({ id: 'rot', x: top.x + 30 * s, y: top.y - 30 * c, from: top });
+  return hs;
+}
+function xfInside(p) { // p en coordonnées document
+  const q = xf.mode === 'distort' ? xf.quad : xfCorners(); let ins = false;
+  for (let i = 0, j = 3; i < 4; j = i++) { const a = q[i], b = q[j]; if ((a.y > p.y) !== (b.y > p.y) && p.x < (b.x - a.x) * (p.y - a.y) / (b.y - a.y) + a.x) ins = !ins; }
+  return ins;
+}
+function xfPointerDown(e, p) {
+  const h = xfHandles().find(h => Math.hypot(h.x - p.sx, h.y - p.sy) <= 8);
+  const st = { cx: xf.cx, cy: xf.cy, w: xf.w, h: xf.h, ang: xf.ang, quad: xf.quad && xf.quad.map(q => ({ ...q })) };
+  if (h && h.id === 'rot') drag = { kind: 'xf', op: 'rot', p0: p, st };
+  else if (h && h.id[0] === 'q') drag = { kind: 'xf', op: 'corner', i: +h.id[1], st };
+  else if (h) drag = { kind: 'xf', op: 'scale', hx: h.hx, hy: h.hy, st };
+  else if (xfInside(p)) drag = { kind: 'xf', op: 'move', p0: p, st };
+  else if (xf.mode === 'affine') drag = { kind: 'xf', op: 'rot', p0: p, st };
+}
+function xfPointerMove(e, p) {
+  const d = drag, st = d.st;
+  if (d.op === 'move') { const dx = p.x - d.p0.x, dy = p.y - d.p0.y; xf.cx = st.cx + dx; xf.cy = st.cy + dy; if (st.quad) xf.quad = st.quad.map(q => ({ x: q.x + dx, y: q.y + dy })); }
+  else if (d.op === 'corner') xf.quad[d.i] = { x: p.x, y: p.y };
+  else if (d.op === 'rot') { let a = st.ang + Math.atan2(p.y - st.cy, p.x - st.cx) - Math.atan2(d.p0.y - st.cy, d.p0.x - st.cx); if (e.shiftKey) a = Math.round(a / (Math.PI / 12)) * Math.PI / 12; xf.ang = a; }
+  else if (d.op === 'scale') {
+    const c = Math.cos(st.ang), s = Math.sin(st.ang), dx = p.x - st.cx, dy = p.y - st.cy, lx = dx * c + dy * s, ly = -dx * s + dy * c;
+    const ax = -d.hx * st.w / 2, ay = -d.hy * st.h / 2;
+    let w = d.hx ? Math.max(1, (lx - ax) * d.hx) : st.w, h = d.hy ? Math.max(1, (ly - ay) * d.hy) : st.h;
+    if (d.hx && d.hy && !e.shiftKey) { const k = Math.max(w / st.w, h / st.h); w = st.w * k; h = st.h * k; }
+    const clx = d.hx ? ax + d.hx * w / 2 : 0, cly = d.hy ? ay + d.hy * h / 2 : 0;
+    xf.w = w; xf.h = h; xf.cx = st.cx + clx * c - cly * s; xf.cy = st.cy + clx * s + cly * c;
+  }
+  renderXf(); renderOptbarThrottled();
+}
+let obT = 0; function renderOptbarThrottled() { if (!obT) obT = setTimeout(() => { obT = 0; renderOptbar(); }, 80); }
+function drawXf(c) {
+  const q = (xf.mode === 'distort' ? xf.quad : xfCorners()).map(p => ({ x: cam.x + p.x * cam.z, y: cam.y + p.y * cam.z }));
+  c.save(); c.beginPath(); q.forEach((p, i) => i ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y)); c.closePath();
+  c.lineWidth = 2.5; c.strokeStyle = '#000'; c.globalAlpha = .45; c.stroke(); c.globalAlpha = 1; c.lineWidth = 1.2; c.strokeStyle = xf.mode === 'distort' ? '#c084fc' : '#60a5fa'; c.stroke();
+  for (const h of xfHandles()) {
+    if (h.id === 'rot') { c.beginPath(); c.moveTo(h.from.x, h.from.y); c.lineTo(h.x, h.y); c.stroke(); c.beginPath(); c.arc(h.x, h.y, 5, 0, 7); c.fillStyle = '#fff'; c.fill(); c.stroke(); continue; }
+    c.fillStyle = '#fff'; c.fillRect(h.x - 4, h.y - 4, 8, 8); c.strokeRect(h.x - 4 + .5, h.y - 4 + .5, 7, 7);
+  }
+  c.restore();
+}
+function xfRotate(deg) {
+  if (xf.mode === 'distort') { const g = xf.quad.reduce((a, p) => ({ x: a.x + p.x / 4, y: a.y + p.y / 4 }), { x: 0, y: 0 }), r = deg * Math.PI / 180, c = Math.cos(r), s = Math.sin(r); xf.quad = xf.quad.map(p => ({ x: g.x + (p.x - g.x) * c - (p.y - g.y) * s, y: g.y + (p.x - g.x) * s + (p.y - g.y) * c })); }
+  else xf.ang += deg * Math.PI / 180;
+  renderXf(); renderOptbar();
+}
+function xfFlip(dir) {
+  if (xf.mode === 'distort') { const [a, b, c, d] = xf.quad; xf.quad = dir === 'h' ? [b, a, d, c] : [d, c, b, a]; }
+  else if (dir === 'h') xf.fx *= -1; else xf.fy *= -1;
+  renderXf(); renderOptbar();
+}
+function xfSpec() {
+  const deg = ((xf.ang * 180 / Math.PI) % 360 + 540) % 360 - 180;
+  const info = xf.mode === 'distort' ? 'Glisser un <b>coin</b> pour déformer (perspective), glisser à l\'intérieur pour déplacer.'
+    : `Taille : <b style="color:var(--g200)">${Math.round(xf.w)} × ${Math.round(xf.h)} px</b> · Angle : <b style="color:var(--g200)">${deg.toFixed(1)}°</b><br>Coins = échelle (Maj : proportions libres) · bords = étirer · poignée ronde ou glisser à l\'extérieur = rotation (Maj : pas de 15°) · glisser à l\'intérieur = déplacer.`;
+  return [{ type: 'hint', text: (xf.copy ? '<b style="color:#f59e0b">Copie</b> : l\'original reste en place.<br>' : '') + info },
+    { type: 'btn', label: '↺ 90°', row: 1, fn: () => xfRotate(-90) }, { type: 'btn', label: '↻ 90°', row: 1, fn: () => xfRotate(90) }, { type: 'btn', label: '180°', row: 1, fn: () => xfRotate(180) },
+    { type: 'sp' },
+    { type: 'btn', label: 'Miroir ⇆', row: 1, fn: () => xfFlip('h') }, { type: 'btn', label: 'Miroir ⇅', row: 1, fn: () => xfFlip('v') },
+    { type: 'sp' },
+    xf.mode === 'distort' ? { type: 'btn', label: 'Revenir à rotation / échelle', fn: () => { xf.mode = 'affine'; xf.quad = null; renderXf(); renderOptbar(); updateXfButtons(); } } : { type: 'btn', label: 'Passer en déformation (4 coins)', fn: () => { toDistort(); renderXf(); renderOptbar(); updateXfButtons(); } },
+    { type: 'btn', label: 'Valider (Entrée)', cls: 'ok', row: 1, fn: commitTransform }, { type: 'btn', label: 'Annuler (Échap)', row: 1, fn: cancelTransform }];
+}
+function cancelTransient() { cancelTransform(); cropRect = null; if (drag && drag.kind !== 'pan') drag = null; if (override && !filterPreviewActive) override = null; }
 
 /* ---------------- interactions souris ---------------- */
 let drag = null, spaceDown = false;
@@ -1268,6 +1417,7 @@ view.addEventListener('pointerdown', e => {
   const p = toDoc(e); view.setPointerCapture(e.pointerId);
   if (e.button === 1 || spaceDown || tool === 'hand') { e.preventDefault(); drag = { kind: 'pan', sx: e.clientX, sy: e.clientY, cx: cam.x, cy: cam.y }; updateCursor(); return; }
   if (e.button !== 0) return;
+  if (xf) { xfPointerDown(e, p); return; }
   // Alt avec un outil de peinture = pipette temporaire
   if (e.altKey && ['brush', 'pencil', 'bucket', 'gradient', 'rect', 'ellipse', 'line', 'arrow', 'polygon', 'text'].includes(tool)) { pickAt(p, false); return; }
   switch (tool) {
@@ -1315,6 +1465,7 @@ view.addEventListener('pointermove', e => {
   if (!doc) return;
   const p = toDoc(e); mouse = { sx: p.sx, sy: p.sy, x: p.x, y: p.y, in: true };
   $('#st-pos').textContent = `${Math.floor(p.x)}, ${Math.floor(p.y)}`;
+  if (!drag && xf) { const h = xfHandles().find(h => Math.hypot(h.x - p.sx, h.y - p.sy) <= 8); view.style.cursor = h ? (h.id === 'rot' ? 'grab' : 'crosshair') : xfInside(p) ? 'move' : xf.mode === 'affine' ? 'alias' : 'default'; return; }
   if (!drag) { if (PAINT_TOOLS.includes(tool) || S.showRulers || tool === 'clone') req(); if (tool === 'crop' && !spaceDown) { const h = cropHit(p.sx, p.sy); view.style.cursor = !h ? 'crosshair' : h === 'in' ? 'move' : ({ n: 'ns-resize', s: 'ns-resize', e: 'ew-resize', w: 'ew-resize', nw: 'nwse-resize', se: 'nwse-resize', ne: 'nesw-resize', sw: 'nesw-resize' })[h]; } return; }
   switch (drag.kind) {
     case 'pan': cam.x = drag.cx + e.clientX - drag.sx; cam.y = drag.cy + e.clientY - drag.sy; styleTextEdit(); req(); break;
@@ -1339,6 +1490,7 @@ view.addEventListener('pointermove', e => {
       previewEffect(drag.op, drag.alpha); break; }
     case 'gradient': drag.b = p; drawGradientEffect(drag.a, p); previewEffect('source-over', opts.gOpacity / 100); break;
     case 'shape': drawShapeEffect(drag.a, p, e.shiftKey); previewEffect('source-over', shapeAlpha()); break;
+    case 'xf': xfPointerMove(e, p); break;
     case 'smudge': { const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e]; for (const ev of evs) smudgeTo(toDoc(ev)); break; }
     case 'measure': { let b = p; if (e.shiftKey) { const dx = p.x - drag.a.x, dy = p.y - drag.a.y, ang = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * Math.PI / 4, len = Math.hypot(dx, dy); b = { x: drag.a.x + Math.cos(ang) * len, y: drag.a.y + Math.sin(ang) * len }; } measure = { a: drag.a, b }; renderOptbar(); req(); break; }
   }
@@ -1360,6 +1512,7 @@ view.addEventListener('pointerup', e => {
     case 'gradient': if (Math.hypot(d.b.x - d.a.x, d.b.y - d.a.y) < 1) { override = null; break; } commitEffect('source-over', opts.gOpacity / 100); break;
     case 'shape': if (override) commitEffect('source-over', shapeAlpha()); break;
     case 'smudge': override = null; smCarry = null; commitLayerResult(d.l, d.copy); break;
+    case 'xf': renderOptbar(); break;
     case 'measure': if (Math.hypot(measure.b.x - measure.a.x, measure.b.y - measure.a.y) < 1) measure = null; renderOptbar(); break;
   }
   req(true);
@@ -1394,7 +1547,7 @@ document.addEventListener('keydown', e => {
     const map = {
       'n': () => e.shiftKey ? act('layer:new') : act('new'), 'o': () => act('open'), 's': () => e.shiftKey ? saveAsDialog() : act('save'),
       'z': () => e.shiftKey ? redo() : undo(), 'y': () => redo(), 'a': () => selectAll(), 'd': () => setSelection(null),
-      'i': () => e.altKey ? act('resize') : e.shiftKey ? invertSel() : act('flt:invert'), 'j': () => act('layer:copysel'), 'e': () => e.shiftKey ? saveAsDialog('png') : act('layer:merge'),
+      'i': () => e.altKey ? act('resize') : e.shiftKey ? invertSel() : act('flt:invert'), 'j': () => act('layer:copysel'), 't': () => act('xf:free'), 'e': () => e.shiftKey ? saveAsDialog('png') : act('layer:merge'),
       'c': () => e.altKey ? act('canvassize') : act('copy'), 'r': () => toggleView('showRulers'), "'": () => toggleView('showGrid'), '4': () => toggleView('showGrid'), 'x': () => act('cut'), '0': () => fit(), '1': () => setZoom(1), '+': () => setZoom(cam.z * 1.25), '=': () => setZoom(cam.z * 1.25), '-': () => setZoom(cam.z / 1.25)
     };
     if (map[k]) { e.preventDefault(); map[k](); }
@@ -1402,6 +1555,8 @@ document.addEventListener('keydown', e => {
   }
   if (e.key === 'F1') { e.preventDefault(); openGuide(); return; }
   if (e.key === ' ') { if (!spaceDown) { spaceDown = true; updateCursor(); } e.preventDefault(); return; }
+  if (xf && e.key === 'Enter') { commitTransform(); return; }
+  if (xf && e.key === 'Escape') { cancelTransform(); return; }
   if (e.key === 'Enter' && cropRect) { applyCrop(); return; }
   if (e.key === 'Escape') { if (cropRect) { cropRect = null; renderOptbar(); req(); } closeMenus(); return; }
   if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); act(e.altKey ? 'fill' : 'clear'); return; }
@@ -1473,13 +1628,14 @@ try { tsecState = JSON.parse(localStorage.getItem('momoshop.tsec') || '{}'); } c
 function buildTools() {
   const a = $('#tools'); let h = '';
   const sec = (id, name, inner) => `<div class="tsec${tsecState[id] ? ' collapsed' : ''}" data-sec="${id}"><div class="tsec-h">${name}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></div><div class="tframe">${inner}</div></div>`;
-  TOOLS.forEach(g => h += sec(g.id, g.group, `<div class="tgrid">${g.items.map(t => t.sep ? '<div class="tsep"></div>' : `<button class="tool-btn" data-tool="${t.id}" title="${t.name} (${t.key})" style="color:${t.c}">${IC[t.id]}</button>`).join('')}${g.id === 'view' ? `<button class="tool-btn" data-toggle="showGrid" title="Afficher / masquer la grille (Ctrl+')" style="color:#60a5fa">${IC.grid}</button><button class="tool-btn" data-toggle="showRulers" title="Afficher / masquer les règles (Ctrl+R)" style="color:#facc15">${IC.rulers}</button>` : ''}</div>`));
+  TOOLS.forEach(g => h += sec(g.id, g.group, `<div class="tgrid">${g.items.map(t => t.sep ? '<div class="tsep"></div>' : `<button class="tool-btn" data-tool="${t.id}" title="${t.name} (${t.key})" style="color:${t.c}">${IC[t.id]}</button>`).join('')}${g.id === 'sel' ? `<button class="tool-btn" data-xf="mirror" title="Copie miroir de la sélection (la copie se place à côté, déplaçable avant de valider)" style="color:#f59e0b">${IC.xmirror}</button><button class="tool-btn" data-xf="rotate" title="Rotation / mise à l'échelle de la sélection (Ctrl+T)" style="color:#60a5fa">${IC.xrotate}</button><button class="tool-btn" data-xf="distort" title="Déformer la sélection (perspective, 4 coins libres)" style="color:#c084fc">${IC.xdistort}</button>` : ''}${g.id === 'view' ? `<button class="tool-btn" data-toggle="showGrid" title="Afficher / masquer la grille (Ctrl+')" style="color:#60a5fa">${IC.grid}</button><button class="tool-btn" data-toggle="showRulers" title="Afficher / masquer les règles (Ctrl+R)" style="color:#facc15">${IC.rulers}</button>` : ''}</div>`));
   h += sec('colors', 'Couleurs', `<div class="colors">
     <div class="sw" id="sw1" title="Couleur 1 (premier plan)"></div><div class="sw" id="sw2" title="Couleur 2 (arrière-plan) — clic : échanger"></div>
     <button id="sw-swap" title="Échanger (X)">${IC.swap}</button><button id="sw-reset" title="Noir / blanc (D)">${IC.reset}</button></div>`);
   a.innerHTML = h;
   a.querySelectorAll('[data-tool]').forEach(b => b.onclick = () => setTool(b.dataset.tool));
   a.querySelectorAll('[data-toggle]').forEach(b => b.onclick = () => toggleView(b.dataset.toggle));
+  a.querySelectorAll('[data-xf]').forEach(b => b.onclick = () => { const k = b.dataset.xf; if (xf && ((k === 'distort') === (xf.mode === 'distort')) && !(k === 'mirror')) return; if (xf) commitTransform(); k === 'mirror' ? startTransform('affine', { copy: true, flip: 'h' }) : startTransform(k === 'distort' ? 'distort' : 'affine'); });
   updateToggles();
   a.querySelectorAll('.tsec-h').forEach(hd => hd.onclick = () => { const s = hd.parentElement; s.classList.toggle('collapsed'); tsecState[s.dataset.sec] = s.classList.contains('collapsed'); try { localStorage.setItem('momoshop.tsec', JSON.stringify(tsecState)); } catch (e) {} });
   const sw = () => { [color1, color2] = [color2, color1]; setColor1(color1); };
@@ -1494,7 +1650,7 @@ function cropToSelection() {
 function toggleView(k) { S[k] = !S[k]; saveSettings(); updateToggles(); req(); toast((k === 'showGrid' ? 'Grille ' : 'Règles ') + (S[k] ? 'affichées' : 'masquées') + '.'); }
 function updateToggles() { $$('[data-toggle]').forEach(b => b.classList.toggle('active', !!S[b.dataset.toggle])); }
 function setTool(id) {
-  closeFontPicker();
+  closeFontPicker(); if (xf) commitTransform();
   if (id === 'crop' && sel && doc) { cropToSelection(); return; }
   if (textEdit) commitText();
   if (id !== 'crop') cropRect = null;
@@ -1549,11 +1705,13 @@ function optSpec() {
   return [];
 }
 function renderOptbar() {
-  const T = TOOL_BY_ID[tool], box = $('#toolopts');
-  box.innerHTML = `<div class="to-name"><span style="color:${T.c};display:flex">${IC[tool]}</span>${T.name} <span style="color:var(--g500);font-weight:400;font-size:11px">(${T.key})</span></div>`;
+  const T = xf ? { c: xf.mode === 'distort' ? '#c084fc' : xf.copy ? '#f59e0b' : '#60a5fa', name: xf.mode === 'distort' ? 'Déformer la sélection' : xf.copy ? 'Copie miroir' : 'Rotation / échelle', key: 'Entrée' } : TOOL_BY_ID[tool], box = $('#toolopts');
+  const ico = xf ? IC[xf.mode === 'distort' ? 'xdistort' : xf.copy ? 'xmirror' : 'xrotate'] : IC[tool];
+  box.innerHTML = `<div class="to-name"><span style="color:${T.c};display:flex">${ico}</span>${T.name} <span style="color:var(--g500);font-weight:400;font-size:11px">(${T.key})</span></div>`;
   const live = () => { saveOpts(); req(); if (textEdit) styleTextEdit(); };
   let btnRow = null;
-  optSpec().forEach(o => {
+  (xf ? xfSpec() : optSpec()).forEach(o => {
+    if (o.type === 'sp') { btnRow = null; return; }
     let el;
     if (o.type === 'range') {
       el = document.createElement('div'); el.className = 'orow';
@@ -1889,7 +2047,7 @@ function afterSaved(fmt, name) {
 }
 // Enregistrer : dans le fichier et le format en cours (sinon → Enregistrer sous)
 async function saveDoc() {
-  if (textEdit) commitText();
+  if (textEdit) commitText(); if (xf) commitTransform();
   const fmt = saveTarget.fmt || 'mms';
   if (!saveTarget.handle) return saveAs(fmt);
   if (fmt !== 'mms' && doc.layers.length > 1) {
@@ -1901,7 +2059,7 @@ async function saveDoc() {
 }
 // Enregistrer sous : n'importe quel format
 async function saveAs(fmt, o = {}) {
-  if (textEdit) commitText();
+  if (textEdit) commitText(); if (xf) commitTransform();
   const F = FMT[fmt], base = (o.name || doc.name).replace(/\.(mms|png|jpe?g|webp)$/i, '');
   if (window.showSaveFilePicker) {
     let h;
@@ -2133,6 +2291,7 @@ const GUIDE = [
     GI('Combiner', `Les boutons du volet <b>Outil en cours</b> choisissent : nouvelle, ajouter, soustraire, intersection. Raccourcis : ${K('Maj')} ajoute, ${K('Alt')} soustrait, ${K('Maj+Alt')} intersection.`),
     GI('La sélection limite tout', 'Pinceau, gomme, pot, dégradé, formes, filtres et effacement ne touchent que l\'intérieur de la sélection.'),
     GI('Menu Sélection', `Tout ${K('Ctrl+A')}, désélectionner ${K('Ctrl+D')}, intervertir ${K('Ctrl+Maj+I')}, sélectionner le contenu du calque, copier ${K('Ctrl+C')}, couper ${K('Ctrl+X')}, coller ${K('Ctrl+V')} (crée un calque ; une image copiée ailleurs, ex. capture d\'écran, se colle aussi).`),
+    GI('Copie miroir, rotation, déformer', `Troisième ligne de la palette <b>SÉLECTION</b> (et menu <b>Sélection</b>). Agit sur le contenu sélectionné du calque actif, ou sur tout le calque sans sélection. <b>Copie miroir</b> : une copie retournée se place juste à côté, l\'original reste ; on la déplace avant de valider. <b>Rotation / échelle</b> ${K('Ctrl+T')} : poignées de coin (échelle proportionnelle, Maj = libre), de bord (étirer), poignée ronde ou glisser à l\'extérieur (rotation, Maj = pas de 15°), glisser à l\'intérieur (déplacer). <b>Déformer</b> : chacun des 4 coins se tire librement (perspective). Le volet Outil en cours propose ±90°, 180°, miroirs, passage d\'un mode à l\'autre. ${K('Entrée')} valide, ${K('Échap')} annule. Le menu Sélection a aussi les rotations et miroirs instantanés.`),
     GI('Déplacer ' + K('V'), 'Glisse le calque actif. Le volet <b>Outil en cours</b> permet de le recentrer ou de le remettre à 0,0.'),
     GI('Recadrage ' + K('C'), `<b>Avec une sélection</b>, l\'outil (ou Image → Recadrer) recadre <b>immédiatement</b> au rectangle qui contient toute la sélection, même irrégulière (lasso, baguette). <b>Sans sélection</b>, il propose un cadre sur toute l\'image. Tire les poignées ou les bords pour l\'ajuster, glisse dans le cadre pour le déplacer, ou trace un nouveau cadre. ${K('Entrée')}, double-clic dans le cadre ou <b>Valider</b> appliquent ; ${K('Échap')} annule. Le cadre peut dépasser l\'image pour l\'agrandir. Aussi dans le menu <b>Image → Recadrer</b>.`)]]]],
   ['paint', '🖌️', 'Peinture & couleurs', [
@@ -2174,7 +2333,7 @@ const GUIDE = [
     GI('Outils', `${K('V')} déplacer · ${K('M')} rectangle · ${K('O')} ellipse · ${K('L')} lasso · ${K('W')} baguette · ${K('C')} recadrage · ${K('B')} pinceau · ${K('N')} crayon · ${K('E')} gomme · ${K('G')} pot · ${K('Q')} dégradé · ${K('I')} pipette · ${K('S')} tampon · ${K('F')} doigt · ${K('K')} flou / netteté · ${K('T')} texte · ${K('R')} rectangle · ${K('U')} ellipse · ${K('Y')} ligne · ${K('A')} flèche · ${K('P')} polygone · ${K('H')} main · ${K('Z')} loupe + · ${K('Maj+Z')} loupe − · ${K('J')} mesure`),
     GI('Fichiers', `${K('Ctrl+N')} nouveau · ${K('Ctrl+O')} ouvrir · ${K('Ctrl+S')} enregistrer · ${K('Ctrl+Maj+S')} enregistrer sous · ${K('Ctrl+Maj+E')} enregistrer en image`),
     GI('Édition', `${K('Ctrl+Z')} annuler · ${K('Ctrl+Y')} rétablir · ${K('Ctrl+C / X / V')} copier, couper, coller · ${K('Suppr')} effacer · ${K('Alt+Suppr')} remplir`),
-    GI('Calques', `${K('Ctrl+Maj+N')} nouveau · ${K('Ctrl+J')} calque par copie · ${K('Ctrl+E')} fusionner`),
+    GI('Calques', `${K('Ctrl+Maj+N')} nouveau · ${K('Ctrl+J')} calque par copie · ${K('Ctrl+T')} rotation / échelle de la sélection · ${K('Ctrl+E')} fusionner`),
     GI('Divers', `${K('[')} ${K(']')} taille · ${K('X')} échanger les couleurs · ${K('D')} noir / blanc · ${K('Ctrl+R')} règles · ${K('Ctrl+\'')} grille · ${K('F1')} guide`)]]]],
   ['install', '📲', 'Installation & réglages', [[null, [
     GI('Installer l\'appli', 'Depuis GitHub Pages, le bouton vert <b>Installer l\'appli</b> lance l\'installation (Chrome, Edge). Si le navigateur ne la propose pas, le bouton explique comment faire à la main (menu du navigateur, ou « Sur l\'écran d\'accueil » sur iPhone). Installée, MOMO Shop s\'ouvre dans sa propre fenêtre et s\'associe aux fichiers .mms.'),
@@ -2250,6 +2409,12 @@ function act(a) {
     case 'fill': return fillSelection();
     case 'clear': return clearSelectionPixels();
     case 'flt': return runFilter(v);
+    case 'xf': {
+      if (xf) commitTransform();
+      if (v === 'free') return startTransform('affine'); if (v === 'distort') return startTransform('distort');
+      if (v === 'ch' || v === 'cv') return startTransform('affine', { copy: true, flip: v === 'ch' ? 'h' : 'v' });
+      const o = v === 'fh' ? { flip: 'h' } : v === 'fv' ? { flip: 'v' } : { rot: v === 'r90' ? 90 : v === 'r-90' ? -90 : 180 };
+      if (startTransform('affine', o)) commitTransform(); return; }
     case 'backup': return v === 'now' ? doBackup(true) : restoreBackup();
     case 'install': return installApp();
     case 'fullscreen': return document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {});
