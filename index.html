@@ -538,6 +538,11 @@ const IC = {
   zoom: SV('<circle cx="11" cy="11" r="7"/><path d="m21 21-5-5M11 8v6M8 11h6"/>'),
   grid: SV('<rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>'),
   rulers: SV('<path d="M3 3h18v5H8v13H3z"/><path d="M7 3v3M11 3v2M15 3v3M19 3v2M3 12h2M3 16h3M3 20h2"/>'),
+  smudge: SV('<path d="M9 11V5a2 2 0 0 1 4 0v6"/><path d="M13 10.5V9a2 2 0 0 1 4 0v3"/><path d="M17 11.5a2 2 0 0 1 4 0V15a7 7 0 0 1-7 7h-1.5a7 7 0 0 1-5.6-2.8L4.3 16a2 2 0 0 1 3.2-2.4L9 15.5"/>'),
+  blur: SV('<path d="M12 2.7s-6.5 6.8-6.5 11.3a6.5 6.5 0 0 0 13 0C18.5 9.5 12 2.7 12 2.7z" fill="currentColor" fill-opacity=".25"/><path d="M9 14.5a3 3 0 0 0 3 3"/>'),
+  arrow: SV('<path d="M4 20 19 5"/><path d="M10 5h9v9"/>'),
+  polygon: SV('<path d="m12 2.5 2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2l-5.9 3.2 1.3-6.5-4.9-4.6 6.6-.8z" fill="currentColor" fill-opacity=".25"/>'),
+  measure: SV('<path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0z"/><path d="m14.5 12.5 2-2M11.5 9.5l2-2M8.5 6.5l2-2M17.5 15.5l2-2"/>'),
   zoomout: SV('<circle cx="11" cy="11" r="7"/><path d="m21 21-5-5M8 11h6"/>'),
   clone: SV('<path d="M5 22h14"/><path d="M19.3 13.7A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.7-.3-1.3-.7-1.8z"/><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-6 0c0 2 1 2 1 3.5V13"/>'),
   eye: SV('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
@@ -559,19 +564,21 @@ const TOOLS = [
     { id: 'lasso', name: 'Lasso', key: 'L', c: '#34d399' }, { id: 'wand', name: 'Baguette magique', key: 'W', c: '#facc15' }, { id: 'crop', name: 'Recadrage', key: 'C', c: '#fb923c' } ] },
   { id: 'paint', group: 'Peinture', items: [
     { id: 'brush', name: 'Pinceau', key: 'B', c: '#f472b6' }, { id: 'pencil', name: 'Crayon', key: 'N', c: '#e5e7eb' }, { id: 'eraser', name: 'Gomme', key: 'E', c: '#f9a8d4' },
-    { id: 'bucket', name: 'Pot de peinture', key: 'G', c: '#22d3ee' }, { id: 'gradient', name: 'Dégradé', key: 'Q', c: '#2dd4bf' }, { id: 'picker', name: 'Pipette', key: 'I', c: '#a3e635' }, { id: 'clone', name: 'Tampon de duplication', key: 'S', c: '#fb7185' } ] },
-  { id: 'shape', group: 'Formes & texte', items: [
+    { id: 'bucket', name: 'Pot de peinture', key: 'G', c: '#22d3ee' }, { id: 'gradient', name: 'Dégradé', key: 'Q', c: '#2dd4bf' }, { id: 'picker', name: 'Pipette', key: 'I', c: '#a3e635' }, { id: 'clone', name: 'Tampon de duplication', key: 'S', c: '#fb7185' }, { id: 'smudge', name: 'Doigt (étaler)', key: 'F', c: '#fdba74' }, { id: 'blur', name: 'Flou / Netteté', key: 'K', c: '#67e8f9' },
+    { sep: true },
     { id: 'text', name: 'Texte', key: 'T', c: '#fcd34d' }, { id: 'rect', name: 'Rectangle', key: 'R', c: '#fcd34d' }, { id: 'ellipse', name: 'Ellipse', key: 'U', c: '#fcd34d' },
-    { id: 'line', name: 'Ligne', key: 'Y', c: '#fcd34d' } ] },
-  { id: 'view', group: 'Vue', items: [ { id: 'hand', name: 'Main (Espace)', key: 'H', c: '#4ade80' }, { id: 'zoom', name: 'Loupe + (zoom avant)', key: 'Z', c: '#4ade80' }, { id: 'zoomout', name: 'Loupe − (zoom arrière)', key: 'Maj+Z', c: '#4ade80' } ] },
+    { id: 'line', name: 'Ligne', key: 'Y', c: '#fcd34d' }, { id: 'arrow', name: 'Flèche', key: 'A', c: '#fcd34d' }, { id: 'polygon', name: 'Polygone / étoile', key: 'P', c: '#fcd34d' } ] },
+  { id: 'view', group: 'Vue', items: [ { id: 'hand', name: 'Main (Espace)', key: 'H', c: '#4ade80' }, { id: 'zoom', name: 'Loupe + (zoom avant)', key: 'Z', c: '#4ade80' }, { id: 'zoomout', name: 'Loupe − (zoom arrière)', key: 'Maj+Z', c: '#4ade80' }, { id: 'measure', name: 'Mesure (distance, angle)', key: 'J', c: '#4ade80' } ] },
 ];
-const TOOL_BY_ID = {}; TOOLS.forEach(g => g.items.forEach(t => TOOL_BY_ID[t.id] = t));
-const PAINT_TOOLS = ['brush', 'pencil', 'eraser', 'clone'];
-const toolSize = () => tool === 'pencil' ? opts.pSize : tool === 'eraser' ? opts.eSize : tool === 'clone' ? opts.cSize : opts.size;
-const EDIT_TOOLS = ['brush', 'pencil', 'eraser', 'clone', 'bucket', 'gradient', 'rect', 'ellipse', 'line', 'move'];
+const TOOL_BY_ID = {}; TOOLS.forEach(g => g.items.forEach(t => { if (!t.sep) TOOL_BY_ID[t.id] = t; }));
+const PAINT_TOOLS = ['brush', 'pencil', 'eraser', 'clone', 'blur', 'smudge'];
+const SHAPE_TOOLS = ['rect', 'ellipse', 'line', 'arrow', 'polygon'];
+const toolSize = () => ({ pencil: opts.pSize, eraser: opts.eSize, clone: opts.cSize, blur: opts.blSize, smudge: opts.smSize })[tool] ?? opts.size;
+const shapeAlpha = () => (tool === 'line' ? opts.lnOpacity : tool === 'arrow' ? opts.arOpacity : opts.shOpacity) / 100;
+const EDIT_TOOLS = ['brush', 'pencil', 'eraser', 'clone', 'blur', 'smudge', 'arrow', 'polygon', 'bucket', 'gradient', 'rect', 'ellipse', 'line', 'move'];
 
 const OPT_DEFAULTS = {
-  size: 20, hard: 80, opacity: 100, pSize: 2, pOpacity: 100, cSize: 40, cHard: 60, cOpacity: 100, cAligned: true, cSample: 'layer', eSize: 30, eHard: 80, eOpacity: 100,
+  size: 20, hard: 80, opacity: 100, pSize: 2, pOpacity: 100, cSize: 40, cHard: 60, cOpacity: 100, cAligned: true, cSample: 'layer', smSize: 30, smHard: 50, smStrength: 60, blSize: 40, blHard: 50, blRadius: 4, blMode: 'blur', blStrength: 100, arWidth: 6, arHead: 4, arDouble: false, arOpacity: 100, pgSides: 6, pgStar: false, pgInner: 50, eSize: 30, eHard: 80, eOpacity: 100,
   tol: 32, contig: true, sample: 'layer', bOpacity: 100, wTol: 32, wContig: true, wSample: 'merged',
   gType: 'linear', gMode: 'c2', gOpacity: 100, font: 'Arial', fSize: 48, bold: false, italic: false,
   shMode: 'fill', shWidth: 4, shOpacity: 100, lnWidth: 4, lnOpacity: 100, selMode: 'new', pkSample: 'merged'
@@ -728,8 +735,9 @@ function draw() {
     c.restore();
   }
   if (cropRect) drawCrop(c);
+  if (measure && tool === 'measure') drawMeasure(c);
   if (tool === 'clone' && cloneSrc) {
-    const sp = (cloneOff && mouse.in) ? { x: mouse.x - cloneOff.x, y: mouse.y - cloneOff.y } : cloneSrc;
+    const sp = (cloneOff && !cloneOff.blur && mouse.in) ? { x: mouse.x - cloneOff.x, y: mouse.y - cloneOff.y } : cloneSrc;
     const X = cam.x + sp.x * cam.z, Y = cam.y + sp.y * cam.z, r = Math.max(4, opts.cSize * cam.z / 2);
     c.save(); c.lineWidth = 2.5; c.strokeStyle = '#000'; c.globalAlpha = .55; c.beginPath(); c.arc(X, Y, r, 0, Math.PI * 2); c.moveTo(X - 8, Y); c.lineTo(X + 8, Y); c.moveTo(X, Y - 8); c.lineTo(X, Y + 8); c.stroke();
     c.globalAlpha = 1; c.lineWidth = 1; c.strokeStyle = '#fb7185'; c.stroke(); c.restore();
@@ -767,6 +775,28 @@ function drawRulers(c, W, H) {
   if (mouse.in) { c.strokeStyle = '#f87171'; c.beginPath(); c.moveTo(Math.round(mouse.sx) + .5, 0); c.lineTo(Math.round(mouse.sx) + .5, RULER); c.moveTo(0, Math.round(mouse.sy) + .5); c.lineTo(RULER, Math.round(mouse.sy) + .5); c.stroke(); }
   c.fillStyle = '#1f2937'; c.fillRect(0, 0, RULER - 1, RULER - 1); c.fillStyle = '#6b7280'; c.font = '9px system-ui'; c.fillText('px', 4, 13);
   c.restore();
+}
+let measure = null;
+function measureInfo() {
+  const dx = measure.b.x - measure.a.x, dy = measure.b.y - measure.a.y;
+  return { dx, dy, len: Math.hypot(dx, dy), ang: -Math.atan2(dy, dx) * 180 / Math.PI };
+}
+function drawMeasure(c) {
+  const A = { x: cam.x + measure.a.x * cam.z, y: cam.y + measure.a.y * cam.z }, B = { x: cam.x + measure.b.x * cam.z, y: cam.y + measure.b.y * cam.z }, m = measureInfo();
+  c.save(); c.lineWidth = 3; c.strokeStyle = '#000'; c.globalAlpha = .5; c.beginPath(); c.moveTo(A.x, A.y); c.lineTo(B.x, B.y); c.stroke();
+  c.globalAlpha = 1; c.lineWidth = 1.5; c.strokeStyle = '#4ade80'; c.stroke();
+  for (const P of [A, B]) { c.beginPath(); c.arc(P.x, P.y, 4, 0, 7); c.fillStyle = '#4ade80'; c.fill(); c.strokeStyle = '#000'; c.lineWidth = 1; c.stroke(); }
+  const lab = `${m.len.toFixed(1)} px · ${m.ang.toFixed(1)}°`; c.font = '12px system-ui'; const tw = c.measureText(lab).width, mx = (A.x + B.x) / 2 + 10, my = (A.y + B.y) / 2 - 12;
+  c.fillStyle = '#1f2937'; c.fillRect(mx - 6, my - 14, tw + 12, 20); c.strokeStyle = '#4ade80'; c.strokeRect(mx - 5.5, my - 13.5, tw + 11, 19); c.fillStyle = '#fff'; c.fillText(lab, mx, my);
+  c.restore();
+}
+function straighten() {
+  if (!measure) return; const m = measureInfo(); if (m.len < 1) return;
+  const th = Math.atan2(m.dy, m.dx), target = Math.round(th / (Math.PI / 2)) * (Math.PI / 2), rot = target - th;
+  if (Math.abs(rot) < 1e-4) return toast('La ligne est déjà droite.');
+  pushDoc(); const cx = doc.w / 2, cy = doc.h / 2;
+  doc.layers = doc.layers.map(l => { const c = mkCanvas(doc.w, doc.h), x = c.getContext('2d'); x.imageSmoothingQuality = 'high'; x.translate(cx, cy); x.rotate(rot); x.translate(-cx, -cy); x.drawImage(l.canvas, l.x, l.y); return { ...l, canvas: c, x: 0, y: 0 }; });
+  sel = null; measure = null; renderLayers(); renderOptbar(); req(true); toast(`Image redressée de ${(rot * 180 / Math.PI).toFixed(1)}°.`);
 }
 function drawAnts(c, segs) {
   const sx = cam.x, sy = cam.y, z = cam.z;
@@ -919,7 +949,7 @@ function hexA(hex, a) { const { r, g, b } = hexToRgb(hex); return `rgba(${r},${g
 /* ---- tampon de duplication ---- */
 let cloneSrc = null, cloneOff = null, cloneSnap = null, cloneTmp = mkCanvas(1, 1);
 function cloneDab(p, size) {
-  const d = getDab(Math.max(1, size), opts.cHard, '#000000'), w = d.width;
+  const d = getDab(Math.max(1, size), tool === 'blur' ? opts.blHard : opts.cHard, '#000000'), w = d.width;
   if (cloneTmp.width !== w) cloneTmp = mkCanvas(w, w);
   const t = cloneTmp.getContext('2d'); t.globalCompositeOperation = 'source-over'; t.clearRect(0, 0, w, w);
   t.drawImage(cloneSnap, -(p.x - cloneOff.x - w / 2), -(p.y - cloneOff.y - w / 2));
@@ -928,7 +958,7 @@ function cloneDab(p, size) {
 }
 function dab(p, size) {
   const c = effect.getContext('2d');
-  if (tool === 'clone') return cloneDab(p, size);
+  if (tool === 'clone' || tool === 'blur') return cloneDab(p, size);
   if (tool === 'pencil') { const s = Math.max(1, Math.round(size)); c.fillStyle = color1; c.fillRect(Math.floor(p.x - s / 2 + .5), Math.floor(p.y - s / 2 + .5), s, s); return; }
   const hard = tool === 'eraser' ? opts.eHard : opts.hard;
   const col = tool === 'eraser' ? '#000000' : color1;
@@ -945,10 +975,29 @@ function strokeTo(p, pressure) {
   for (let i = 1; i <= n; i++) dab({ x: last.x + dx * i / n, y: last.y + dy * i / n }, size);
   drag.last = p;
 }
+/* ---- doigt : la peinture est ramassée puis déposée plus loin ---- */
+let smCarry = null;
+function smudgeAt(p) {
+  const l = drag.l, size = Math.max(2, opts.smSize), d = getDab(size, opts.smHard, '#000000'), w = d.width;
+  const lx = Math.round(p.x - l.x - w / 2), ly = Math.round(p.y - l.y - w / 2), c = drag.copy.getContext('2d');
+  if (smCarry && smCarry.width === w) {
+    const t = cloneCanvas(smCarry), tc = t.getContext('2d'); tc.globalCompositeOperation = 'destination-in'; tc.drawImage(d, 0, 0);
+    c.save(); c.globalAlpha = opts.smStrength / 100; c.drawImage(t, lx, ly); c.restore();
+  }
+  if (!smCarry || smCarry.width !== w) smCarry = mkCanvas(w, w);
+  const k = smCarry.getContext('2d'); k.clearRect(0, 0, w, w); k.drawImage(drag.copy, -lx, -ly);
+}
+function smudgeTo(p) {
+  const last = drag.last, dx = p.x - last.x, dy = p.y - last.y, dist = Math.hypot(dx, dy), step = Math.max(1, opts.smSize * .12);
+  if (dist < step) return; const n = Math.floor(dist / step);
+  for (let i = 1; i <= n; i++) smudgeAt({ x: last.x + dx * i / n, y: last.y + dy * i / n });
+  drag.last = p; override = { layer: drag.l, canvas: drag.copy }; req(true);
+}
 function strokeParams() {
   if (tool === 'eraser') return { op: 'destination-out', alpha: opts.eOpacity / 100 };
   if (tool === 'pencil') return { op: 'source-over', alpha: opts.pOpacity / 100 };
   if (tool === 'clone') return { op: 'source-over', alpha: opts.cOpacity / 100 };
+  if (tool === 'blur') return { op: 'source-over', alpha: opts.blStrength / 100 };
   return { op: 'source-over', alpha: opts.opacity / 100 };
 }
 function clearEffect() { effect.getContext('2d').clearRect(0, 0, effect.width, effect.height); }
@@ -956,6 +1005,25 @@ function clearEffect() { effect.getContext('2d').clearRect(0, 0, effect.width, e
 function drawShapeEffect(a, b, shift) {
   clearEffect(); const c = effect.getContext('2d');
   let x = a.x, y = a.y, w = b.x - a.x, h = b.y - a.y;
+  if (tool === 'arrow') {
+    let ex = b.x, ey = b.y;
+    if (shift) { const ang = Math.round(Math.atan2(h, w) / (Math.PI / 4)) * Math.PI / 4, len = Math.hypot(w, h); ex = a.x + Math.cos(ang) * len; ey = a.y + Math.sin(ang) * len; }
+    const lw = opts.arWidth, len = Math.hypot(ex - a.x, ey - a.y); if (len < 1) return;
+    const ux = (ex - a.x) / len, uy = (ey - a.y) / len, hl = Math.min(len * (opts.arDouble ? .45 : .9), lw * opts.arHead), hw = hl * .55;
+    const head = (tx, ty, dx, dy) => { c.beginPath(); c.moveTo(tx, ty); c.lineTo(tx - dx * hl - dy * hw, ty - dy * hl + dx * hw); c.lineTo(tx - dx * hl + dy * hw, ty - dy * hl - dx * hw); c.closePath(); c.fill(); };
+    c.strokeStyle = c.fillStyle = color1; c.lineWidth = lw; c.lineCap = 'butt'; c.beginPath();
+    c.moveTo(a.x + (opts.arDouble ? ux * hl * .8 : 0), a.y + (opts.arDouble ? uy * hl * .8 : 0)); c.lineTo(ex - ux * hl * .8, ey - uy * hl * .8); c.stroke();
+    head(ex, ey, ux, uy); if (opts.arDouble) head(a.x, a.y, -ux, -uy); return;
+  }
+  if (tool === 'polygon') {
+    const r = Math.hypot(w, h); if (r < 1) return; let ang = Math.atan2(h, w); if (shift) ang = Math.round(ang / (Math.PI / 12)) * Math.PI / 12;
+    const n = clamp(opts.pgSides | 0, 3, 40), pts = opts.pgStar ? n * 2 : n; c.beginPath();
+    for (let i = 0; i < pts; i++) { const rr = opts.pgStar && i % 2 ? r * opts.pgInner / 100 : r, t = ang + i * Math.PI * 2 / pts; i ? c.lineTo(a.x + Math.cos(t) * rr, a.y + Math.sin(t) * rr) : c.moveTo(a.x + Math.cos(t) * rr, a.y + Math.sin(t) * rr); }
+    c.closePath();
+    if (opts.shMode === 'fill' || opts.shMode === 'both') { c.fillStyle = color1; c.fill(); }
+    if (opts.shMode === 'stroke' || opts.shMode === 'both') { c.strokeStyle = opts.shMode === 'both' ? color2 : color1; c.lineWidth = opts.shWidth; c.lineJoin = 'round'; c.stroke(); }
+    return;
+  }
   if (tool === 'line') {
     let ex = b.x, ey = b.y;
     if (shift) { const ang = Math.round(Math.atan2(h, w) / (Math.PI / 4)) * Math.PI / 4, len = Math.hypot(w, h); ex = a.x + Math.cos(ang) * len; ey = a.y + Math.sin(ang) * len; }
@@ -1102,9 +1170,10 @@ view.addEventListener('pointerdown', e => {
   if (e.button === 1 || spaceDown || tool === 'hand') { e.preventDefault(); drag = { kind: 'pan', sx: e.clientX, sy: e.clientY, cx: cam.x, cy: cam.y }; updateCursor(); return; }
   if (e.button !== 0) return;
   // Alt avec un outil de peinture = pipette temporaire
-  if (e.altKey && ['brush', 'pencil', 'bucket', 'gradient', 'rect', 'ellipse', 'line', 'text'].includes(tool)) { pickAt(p, false); return; }
+  if (e.altKey && ['brush', 'pencil', 'bucket', 'gradient', 'rect', 'ellipse', 'line', 'arrow', 'polygon', 'text'].includes(tool)) { pickAt(p, false); return; }
   switch (tool) {
     case 'zoom': setZoom(cam.z * (e.altKey ? 1 / 1.6 : 1.6), p.sx, p.sy); return;
+    case 'measure': drag = { kind: 'measure', a: p }; measure = { a: p, b: p }; return;
     case 'zoomout': setZoom(cam.z * (e.altKey ? 1.6 : 1 / 1.6), p.sx, p.sy); return;
     case 'picker': pickAt(p, e.altKey); drag = { kind: 'pick' }; return;
     case 'text': e.preventDefault(); startText(p); return;
@@ -1120,11 +1189,17 @@ view.addEventListener('pointerdown', e => {
   if (tool === 'clone' && (e.ctrlKey || e.metaKey)) { cloneSrc = { x: p.x, y: p.y }; cloneOff = null; renderOptbar(); req(); toast('Source du tampon définie.'); return; }
   if (tool === 'clone' && !cloneSrc) { toast('Ctrl+clic sur l\'image pour choisir la source du tampon.'); return; }
   if (EDIT_TOOLS.includes(tool) && !editable()) return;
+  if (tool === 'smudge') { const l = L(); smCarry = null; drag = { kind: 'smudge', l, copy: cloneCanvas(l.canvas), last: p }; smudgeAt(p); override = { layer: l, canvas: drag.copy }; req(true); return; }
+  if (tool === 'blur') {
+    // version floutée (ou plus nette) du calque, peinte ensuite au pinceau
+    const l = L(), f = opts.blMode === 'blur' ? blurCanvas(l.canvas, opts.blRadius) : sharpenCanvas(l.canvas, opts.blRadius);
+    cloneSnap = mkCanvas(doc.w, doc.h); cloneSnap.getContext('2d').drawImage(f, l.x, l.y); cloneOff = { x: 0, y: 0, blur: true };
+  }
   if (tool === 'clone') {
     // instantané de la source (calque actif ou toutes les couches) au début du trait
     cloneSnap = mkCanvas(doc.w, doc.h); const sc = cloneSnap.getContext('2d');
     if (opts.cSample === 'merged') { composite(comp, false); sc.drawImage(comp, 0, 0); } else { const l = L(); sc.drawImage(l.canvas, l.x, l.y); }
-    if (!cloneOff || !opts.cAligned) cloneOff = { x: p.x - cloneSrc.x, y: p.y - cloneSrc.y };
+    if (!cloneOff || !opts.cAligned || cloneOff.blur) cloneOff = { x: p.x - cloneSrc.x, y: p.y - cloneSrc.y };
   }
   if (tool === 'move') { const l = L(); pushDoc(); drag = { kind: 'move', a: p, ox: l.x, oy: l.y, moved: false }; return; }
   if (tool === 'bucket') { bucketAt(p); return; }
@@ -1135,7 +1210,7 @@ view.addEventListener('pointerdown', e => {
     dab(p, Math.max(1, base * pr)); previewEffect(drag.op, drag.alpha); return;
   }
   if (tool === 'gradient') { drag = { kind: 'gradient', a: p, b: p }; return; }
-  if (['rect', 'ellipse', 'line'].includes(tool)) { drag = { kind: 'shape', a: p }; return; }
+  if (SHAPE_TOOLS.includes(tool)) { drag = { kind: 'shape', a: p }; return; }
 });
 view.addEventListener('pointermove', e => {
   if (!doc) return;
@@ -1164,7 +1239,9 @@ view.addEventListener('pointermove', e => {
       for (const ev of evs) { const q = toDoc(ev); strokeTo(q, ev.pointerType === 'pen' ? (ev.pressure || .5) : 1); }
       previewEffect(drag.op, drag.alpha); break; }
     case 'gradient': drag.b = p; drawGradientEffect(drag.a, p); previewEffect('source-over', opts.gOpacity / 100); break;
-    case 'shape': drawShapeEffect(drag.a, p, e.shiftKey); previewEffect('source-over', (tool === 'line' ? opts.lnOpacity : opts.shOpacity) / 100); break;
+    case 'shape': drawShapeEffect(drag.a, p, e.shiftKey); previewEffect('source-over', shapeAlpha()); break;
+    case 'smudge': { const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e]; for (const ev of evs) smudgeTo(toDoc(ev)); break; }
+    case 'measure': { let b = p; if (e.shiftKey) { const dx = p.x - drag.a.x, dy = p.y - drag.a.y, ang = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * Math.PI / 4, len = Math.hypot(dx, dy); b = { x: drag.a.x + Math.cos(ang) * len, y: drag.a.y + Math.sin(ang) * len }; } measure = { a: drag.a, b }; renderOptbar(); req(); break; }
   }
 });
 view.addEventListener('pointerup', e => {
@@ -1182,7 +1259,9 @@ view.addEventListener('pointerup', e => {
     case 'move': if (!d.moved) { undoStack.pop(); updateUndoBtns(); } else markDirty(); break;
     case 'paint': commitEffect(d.op, d.alpha); break;
     case 'gradient': if (Math.hypot(d.b.x - d.a.x, d.b.y - d.a.y) < 1) { override = null; break; } commitEffect('source-over', opts.gOpacity / 100); break;
-    case 'shape': if (override) commitEffect('source-over', (tool === 'line' ? opts.lnOpacity : opts.shOpacity) / 100); break;
+    case 'shape': if (override) commitEffect('source-over', shapeAlpha()); break;
+    case 'smudge': override = null; smCarry = null; commitLayerResult(d.l, d.copy); break;
+    case 'measure': if (Math.hypot(measure.b.x - measure.a.x, measure.b.y - measure.a.y) < 1) measure = null; renderOptbar(); break;
   }
   req(true);
 });
@@ -1232,7 +1311,7 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') cam.x += s; if (e.key === 'ArrowRight') cam.x -= s; if (e.key === 'ArrowUp') cam.y += s; if (e.key === 'ArrowDown') cam.y -= s;
     styleTextEdit(); req(); return;
   }
-  if (k === '[' || k === ']') { const f = k === ']' ? 1.2 : 1 / 1.2; const key = tool === 'pencil' ? 'pSize' : tool === 'eraser' ? 'eSize' : tool === 'clone' ? 'cSize' : 'size'; opts[key] = clamp(Math.round(opts[key] * f + (k === ']' ? 1 : -1)), 1, 500); saveOpts(); renderOptbar(); req(); return; }
+  if (k === '[' || k === ']') { const f = k === ']' ? 1.2 : 1 / 1.2; const key = tool === 'pencil' ? 'pSize' : tool === 'eraser' ? 'eSize' : tool === 'clone' ? 'cSize' : tool === 'blur' ? 'blSize' : tool === 'smudge' ? 'smSize' : 'size'; opts[key] = clamp(Math.round(opts[key] * f + (k === ']' ? 1 : -1)), 1, 500); saveOpts(); renderOptbar(); req(); return; }
   if (k === 'x') { [color1, color2] = [color2, color1]; setColor1(color1); return; }
   if (k === 'd') { color2 = '#ffffff'; setColor1('#000000'); return; }
   if (k === 'z' && e.shiftKey) { setTool('zoomout'); return; }
@@ -1295,7 +1374,7 @@ try { tsecState = JSON.parse(localStorage.getItem('momoshop.tsec') || '{}'); } c
 function buildTools() {
   const a = $('#tools'); let h = '';
   const sec = (id, name, inner) => `<div class="tsec${tsecState[id] ? ' collapsed' : ''}" data-sec="${id}"><div class="tsec-h">${name}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></div><div class="tframe">${inner}</div></div>`;
-  TOOLS.forEach(g => h += sec(g.id, g.group, `<div class="tgrid">${g.items.map(t => `<button class="tool-btn" data-tool="${t.id}" title="${t.name} (${t.key})" style="color:${t.c}">${IC[t.id]}</button>`).join('')}${g.id === 'view' ? `<button class="tool-btn" data-toggle="showGrid" title="Afficher / masquer la grille (Ctrl+')" style="color:#60a5fa">${IC.grid}</button><button class="tool-btn" data-toggle="showRulers" title="Afficher / masquer les règles (Ctrl+R)" style="color:#facc15">${IC.rulers}</button>` : ''}</div>`));
+  TOOLS.forEach(g => h += sec(g.id, g.group, `<div class="tgrid">${g.items.map(t => t.sep ? '<div class="tsep"></div>' : `<button class="tool-btn" data-tool="${t.id}" title="${t.name} (${t.key})" style="color:${t.c}">${IC[t.id]}</button>`).join('')}${g.id === 'view' ? `<button class="tool-btn" data-toggle="showGrid" title="Afficher / masquer la grille (Ctrl+')" style="color:#60a5fa">${IC.grid}</button><button class="tool-btn" data-toggle="showRulers" title="Afficher / masquer les règles (Ctrl+R)" style="color:#facc15">${IC.rulers}</button>` : ''}</div>`));
   h += sec('colors', 'Couleurs', `<div class="colors">
     <div class="sw" id="sw1" title="Couleur 1 (premier plan)"></div><div class="sw" id="sw2" title="Couleur 2 (arrière-plan) — clic : échanger"></div>
     <button id="sw-swap" title="Échanger (X)">${IC.swap}</button><button id="sw-reset" title="Noir / blanc (D)">${IC.reset}</button></div>`);
@@ -1353,6 +1432,15 @@ function optSpec() {
       textEdit ? { type: 'btn', label: 'Valider le texte (Ctrl+Entrée)', cls: 'ok', fn: commitText } : { type: 'hint', text: 'Clic sur l\'image pour écrire — le texte crée un nouveau calque' }];
     case 'rect': case 'ellipse': return [selectOpt('Style', 'shMode', [['fill', 'Plein (couleur 1)'], ['stroke', 'Contour (couleur 1)'], ['both', 'Plein 1 + contour 2']]), range('Contour', 'shWidth', 1, 100, 'px'), range('Opacité', 'shOpacity', 1, 100, '%'), { type: 'hint', text: 'Maj = carré / cercle' }];
     case 'line': return [range('Épaisseur', 'lnWidth', 1, 200, 'px'), range('Opacité', 'lnOpacity', 1, 100, '%'), { type: 'hint', text: 'Maj = angles de 45°' }];
+    case 'arrow': return [range('Épaisseur', 'arWidth', 1, 100, 'px'), range('Pointe (× épaisseur)', 'arHead', 2, 10), check('Double flèche', 'arDouble'), range('Opacité', 'arOpacity', 1, 100, '%'), { type: 'hint', text: 'Couleur 1 · glisser de la queue vers la pointe · Maj = angles de 45°' }];
+    case 'polygon': return [range('Nombre de côtés', 'pgSides', 3, 24), check('Étoile', 'pgStar'), ...(opts.pgStar ? [range('Creux de l\'étoile', 'pgInner', 10, 95, '%')] : []), selectOpt('Style', 'shMode', [['fill', 'Plein (couleur 1)'], ['stroke', 'Contour (couleur 1)'], ['both', 'Plein 1 + contour 2']]), range('Contour', 'shWidth', 1, 100, 'px'), range('Opacité', 'shOpacity', 1, 100, '%'), { type: 'hint', text: 'Glisser du centre vers un sommet · Maj = rotation par pas de 15°' }];
+    case 'smudge': return [range('Taille', 'smSize', 2, 300, 'px'), range('Dureté', 'smHard', 0, 100, '%'), range('Force', 'smStrength', 1, 100, '%'), { type: 'hint', text: 'Glisser pour étaler les couleurs du calque actif, comme avec le doigt sur de la peinture fraîche.' }];
+    case 'blur': return [selectOpt('Effet', 'blMode', [['blur', 'Flou'], ['sharpen', 'Netteté']]), range('Taille', 'blSize', 1, 500, 'px'), range('Dureté', 'blHard', 0, 100, '%'), range(opts.blMode === 'blur' ? 'Rayon du flou' : 'Intensité', 'blRadius', 1, 20), range('Force', 'blStrength', 1, 100, '%'), { type: 'hint', text: 'Peindre sur les zones à adoucir (ou à rendre plus nettes). Un seul passage par trait : repasser pour accentuer.' }];
+    case 'measure': {
+      if (!measure) return [{ type: 'hint', text: 'Glisser d\'un point à un autre pour mesurer la distance et l\'angle · Maj = angles de 45°.<br><b>Redresser</b> : trace une ligne le long d\'un horizon ou d\'un mur penché, puis clique sur Redresser.' }];
+      const m = measureInfo();
+      return [{ type: 'hint', text: `<div style="font-size:13px;color:var(--g200);line-height:1.7">Longueur : <b>${m.len.toFixed(1)} px</b><br>ΔX : ${m.dx.toFixed(1)} · ΔY : ${(-m.dy).toFixed(1)}<br>Angle : <b>${m.ang.toFixed(2)}°</b></div>` },
+        { type: 'btn', label: 'Redresser l\'image sur cette ligne', cls: 'ok', fn: straighten }, { type: 'btn', label: 'Effacer la mesure', fn: () => { measure = null; renderOptbar(); req(); } }]; }
     case 'move': return [{ type: 'hint', text: 'Glisser pour déplacer le calque actif' }, { type: 'btn', label: 'Recentrer le calque', fn: () => { const l = L(); pushDoc(); l.x = Math.round((doc.w - l.canvas.width) / 2); l.y = Math.round((doc.h - l.canvas.height) / 2); req(true); } }, { type: 'btn', label: 'Remettre à 0,0', fn: () => { const l = L(); pushDoc(); l.x = 0; l.y = 0; req(true); } }];
     case 'clone': return [range('Taille', 'cSize', 1, 500, 'px'), range('Dureté', 'cHard', 0, 100, '%'), range('Opacité', 'cOpacity', 1, 100, '%'), check('Aligné', 'cAligned'), selectOpt('Échantillon', 'cSample', SAMPLE),
       { type: 'hint', text: (cloneSrc ? `Source : <b style="color:var(--g200)">${Math.round(cloneSrc.x)}, ${Math.round(cloneSrc.y)}</b><br>` : '<b style="color:#fb7185">Pas encore de source.</b><br>') + '<b>Ctrl+clic</b> : choisir la source · <b>clic / glisser</b> : cloner. <b>Aligné</b> : le décalage source → pinceau est gardé d\'un trait à l\'autre ; décoché, chaque trait repart de la source.' }];
@@ -1383,10 +1471,10 @@ function renderOptbar() {
     } else if (o.type === 'select') {
       el = document.createElement('div'); el.className = 'orow';
       el.innerHTML = `<div class="olab"><span>${o.label}</span></div><select>${o.items.map(([v, t]) => `<option value="${esc(v)}"${opts[o.key] === v ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>`;
-      el.querySelector('select').onchange = ev => { opts[o.key] = ev.target.value; live(); ev.target.blur(); };
+      el.querySelector('select').onchange = ev => { opts[o.key] = ev.target.value; live(); ev.target.blur(); if (o.key === 'blMode') renderOptbar(); };
     } else if (o.type === 'check') {
       el = document.createElement('label'); el.className = 'ochk'; el.innerHTML = `<input type="checkbox"${opts[o.key] ? ' checked' : ''}> ${o.label}`;
-      el.querySelector('input').onchange = ev => { opts[o.key] = ev.target.checked; live(); ev.target.blur(); };
+      el.querySelector('input').onchange = ev => { opts[o.key] = ev.target.checked; live(); ev.target.blur(); if (o.key === 'pgStar') renderOptbar(); };
     } else if (o.type === 'hint') { el = document.createElement('div'); el.className = 'ohint'; el.innerHTML = o.text; }
     else if (o.type === 'btn') {
       const b = document.createElement('button'); b.className = 'obtn ' + (o.cls || ''); b.textContent = o.label; b.onclick = o.fn;
@@ -1589,6 +1677,10 @@ const ADJUST = {
   threshold: { title: 'Seuil', params: [['Niveau', 't', 0, 255, 128]],
     run: (src, p) => pixelFilter(src, d => { for (let i = 0; i < d.length; i += 4) { const v = (d[i] * .299 + d[i + 1] * .587 + d[i + 2] * .114) >= p.t ? 255 : 0; d[i] = d[i + 1] = d[i + 2] = v; } }) },
 };
+function sharpenCanvas(src, amount) {
+  const a = clamp(amount, 1, 20) / 4;   // 1..5
+  return pixelFilter(src, (d, w, h) => convolve(d, w, h, [0, -a, 0, -a, 1 + 4 * a, -a, 0, -a, 0]));
+}
 function blurCanvas(src, r) {
   const c = mkCanvas(src.width, src.height), x = c.getContext('2d');
   if (r <= 0) { x.drawImage(src, 0, 0); return c; }
@@ -1906,7 +1998,7 @@ const GI = (t, b) => `<li><b class="t">${t}</b>${b}</li>`;
 const GUIDE = [
   ['start', '🚀', 'Bien démarrer', [[null, [
     GI('MOMO Shop', 'Éditeur d\'images multicalques qui tourne dans le navigateur : rien n\'est envoyé sur Internet, tout reste sur ton poste. Il s\'utilise aussi comme une application installée (bouton vert <b>Installer l\'appli</b>).'),
-    GI('L\'écran', 'En haut à gauche : annuler / rétablir, puis <b>+ Nouveau</b> et les menus <b>Image</b>, <b>Calques</b>, <b>Sélection</b>, <b>Filtres</b>. À droite : installation, plein écran, la <b>disquette</b> (ouvrir, enregistrer, enregistrer sous, backup auto), l\'<b>appareil photo</b> (enregistrer en image PNG / JPEG / WEBP), le <b>Guide</b> et les <b>Paramètres</b>. À gauche : la palette d\'outils en sections repliables (clic sur un titre pour replier). À droite, trois volets repliables : <b>Outil en cours</b> (réglages de l\'outil actif), <b>Couleur</b> et <b>Calques</b>. En bas : position du curseur, taille du document, sélection, zoom.'),
+    GI('L\'écran', 'En haut à gauche : annuler / rétablir, puis <b>+ Nouveau</b> et les menus <b>Image</b>, <b>Calques</b>, <b>Sélection</b>, <b>Filtres</b>. À droite : installation, plein écran, la <b>disquette</b> (ouvrir, enregistrer, enregistrer sous, backup auto), l\'<b>appareil photo</b> (enregistrer en image PNG / JPEG / WEBP), le <b>Guide</b> et les <b>Paramètres</b>. À gauche : la palette d\'outils en sections repliables (SÉLECTION, PEINTURE avec les formes et le texte sous un trait, VUE, COULEURS) (clic sur un titre pour replier). À droite, trois volets repliables : <b>Outil en cours</b> (réglages de l\'outil actif), <b>Couleur</b> et <b>Calques</b>. En bas : position du curseur, taille du document, sélection, zoom.'),
     GI('Ouverture', 'Une courte animation du logo s\'affiche : M O M O écrit à la verticale, les deux O s\'effacent et les deux M se superposent pour former le grand M, SHOP se relève et le O, qui est un appareil photo, déclenche son flash. Un clic, une touche ou la molette la fait disparaître tout de suite. Elle se désactive dans Paramètres → Affichage.'),
     GI('Premier essai', `Le pinceau ${K('B')} est actif : peins sur l\'image, ${K('Ctrl+Z')} pour annuler. Crée un calque ${K('Ctrl+Maj+N')} pour travailler sans toucher au fond.`)]]]],
   ['files', '💾', 'Fichiers & formats', [
@@ -1943,6 +2035,8 @@ const GUIDE = [
       GI('Pot de peinture ' + K('G'), 'Remplit une zone de couleur proche (tolérance, contigu, échantillon).'),
       GI('Dégradé ' + K('Q'), 'Glisser pour tracer : linéaire ou radial, couleur 1 → couleur 2 ou couleur 1 → transparent.'),
       GI('Tampon de duplication ' + K('S'), `Recopie une partie de l\'image ailleurs (retouche, effacer un défaut). ${K('Ctrl')}+clic choisit la <b>source</b> sur le calque actif (ou toutes les couches selon l\'échantillon), puis clic / glisser pour peindre avec les pixels de la source ; un repère rose montre l\'endroit copié. <b>Aligné</b> garde le même décalage d\'un trait à l\'autre. Taille, dureté, opacité réglables, ${K('[')} ${K(']')} pour la taille.`),
+      GI('Doigt ' + K('F'), 'Étale les couleurs du calque actif dans le sens du geste, comme un doigt dans de la peinture fraîche. Taille, dureté et <b>force</b> (quantité de couleur entraînée).'),
+      GI('Flou / Netteté ' + K('K'), 'Pinceau qui adoucit (flou) ou accentue (netteté) les zones peintes : visages, arrière-plan, plaque à masquer… Rayon / intensité et force réglables ; repasser pour accentuer.'),
       GI('Pipette ' + K('I'), `Clic : couleur 1, ${K('Alt')}+clic : couleur 2. Avec le pinceau, le pot ou les formes, ${K('Alt')}+clic prend aussi la couleur.`)]],
     ['Couleurs', [GI('Couleur 1 et 2', `Les deux carrés en bas de la palette. ${K('X')} les échange, ${K('D')} remet noir / blanc.`),
       GI('Sélecteur', 'Carré saturation / luminosité, barre de teinte, code hexadécimal modifiable.'),
@@ -1950,7 +2044,9 @@ const GUIDE = [
   ['shapes', '🔤', 'Formes & texte', [[null, [
     GI('Texte ' + K('T'), `Clic sur l\'image, tape le texte (Entrée = nouvelle ligne), puis ${K('Ctrl+Entrée')}, clic ailleurs ou bouton Valider. Chaque texte crée un <b>nouveau calque</b>. Police, taille, gras, italique dans le volet <b>Outil en cours</b>. ${K('Échap')} annule.`),
     GI('Rectangle ' + K('R') + ' et ellipse ' + K('U'), `Plein, contour, ou plein couleur 1 + contour couleur 2. ${K('Maj')} : carré / cercle.`),
-    GI('Ligne ' + K('Y'), `Épaisseur et opacité réglables. ${K('Maj')} : angles de 45°.`)]]]],
+    GI('Ligne ' + K('Y'), `Épaisseur et opacité réglables. ${K('Maj')} : angles de 45°.`),
+    GI('Flèche ' + K('A'), `Glisser de la queue vers la pointe. Épaisseur, taille de la pointe, flèche double, opacité. ${K('Maj')} : angles de 45°. Pratique pour annoter une photo de chantier.`),
+    GI('Polygone / étoile ' + K('P'), `Glisser du centre vers un sommet. Nombre de côtés (3 à 24), option étoile avec son creux, plein / contour comme le rectangle. ${K('Maj')} : rotation par pas de 15°.`)]]]],
   ['image', '🎛️', 'Image & filtres', [
     ['Menu Image', [GI('Taille de l\'image', `Redimensionne tout le document (pixels ou %, proportions conservées). ${K('Ctrl+Alt+I')}`),
       GI('Taille de la zone de travail', `Agrandit ou réduit la toile sans déformer, avec un point d\'ancrage. ${K('Ctrl+Alt+C')}`),
@@ -1963,11 +2059,12 @@ const GUIDE = [
     GI('Zoom', `Molette (vers le curseur), loupe + ${K('Z')}, loupe − ${K('Maj+Z')}, ${K('Ctrl++')} / ${K('Ctrl+-')}, ${K('Ctrl+0')} ajuster à l\'écran, ${K('Ctrl+1')} 100 %, ou la liste en bas à droite.`),
     GI('Se déplacer', `Clic-molette maintenu, ${K('Espace')} maintenu avec n\'importe quel outil, outil main ${K('H')}, flèches du clavier (${K('Maj')} = plus vite).`),
     GI('Pavé tactile', 'Dans Paramètres → Affichage, « Molette = défilement » fait défiler à deux doigts et zoome avec Ctrl.'),
+    GI('Mesure ' + K('J'), `Glisser d\'un point à un autre : longueur en pixels, écarts X / Y et angle, affichés sur l\'image et dans le volet. <b>Redresser l\'image</b> fait tourner tout le document pour remettre cette ligne droite (horizon, façade, bordure penchée).`),
     GI('Grille', `Bouton grille dans <b>VUE</b> ou ${K('Ctrl+\'')} : quadrillage sur l\'image (pas et couleur dans Paramètres → Affichage, 50 px par défaut). N\'apparaît pas dans les fichiers enregistrés.`),
     GI('Règles', `Bouton règles dans <b>VUE</b> ou ${K('Ctrl+R')} : graduations en pixels du document en haut et à gauche, avec la position du curseur en rouge. L\'échelle s\'adapte au zoom.`),
     GI('Grille de pixels', 'Apparaît au fort zoom (réglable dans les Paramètres).')]]]],
   ['keys', '⌨️', 'Raccourcis', [[null, [
-    GI('Outils', `${K('V')} déplacer · ${K('M')} rectangle · ${K('O')} ellipse · ${K('L')} lasso · ${K('W')} baguette · ${K('C')} recadrage · ${K('B')} pinceau · ${K('N')} crayon · ${K('E')} gomme · ${K('G')} pot · ${K('Q')} dégradé · ${K('I')} pipette · ${K('S')} tampon · ${K('T')} texte · ${K('R')} rectangle · ${K('U')} ellipse · ${K('Y')} ligne · ${K('H')} main · ${K('Z')} loupe + · ${K('Maj+Z')} loupe −`),
+    GI('Outils', `${K('V')} déplacer · ${K('M')} rectangle · ${K('O')} ellipse · ${K('L')} lasso · ${K('W')} baguette · ${K('C')} recadrage · ${K('B')} pinceau · ${K('N')} crayon · ${K('E')} gomme · ${K('G')} pot · ${K('Q')} dégradé · ${K('I')} pipette · ${K('S')} tampon · ${K('F')} doigt · ${K('K')} flou / netteté · ${K('T')} texte · ${K('R')} rectangle · ${K('U')} ellipse · ${K('Y')} ligne · ${K('A')} flèche · ${K('P')} polygone · ${K('H')} main · ${K('Z')} loupe + · ${K('Maj+Z')} loupe − · ${K('J')} mesure`),
     GI('Fichiers', `${K('Ctrl+N')} nouveau · ${K('Ctrl+O')} ouvrir · ${K('Ctrl+S')} enregistrer · ${K('Ctrl+Maj+S')} enregistrer sous · ${K('Ctrl+Maj+E')} enregistrer en image`),
     GI('Édition', `${K('Ctrl+Z')} annuler · ${K('Ctrl+Y')} rétablir · ${K('Ctrl+C / X / V')} copier, couper, coller · ${K('Suppr')} effacer · ${K('Alt+Suppr')} remplir`),
     GI('Calques', `${K('Ctrl+Maj+N')} nouveau · ${K('Ctrl+J')} calque par copie · ${K('Ctrl+E')} fusionner`),
