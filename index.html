@@ -65,6 +65,19 @@ header{background:var(--g800);border-bottom:1px solid var(--g700);display:flex;a
 .hbtn:hover{background:var(--g600)}
 .hbtn:disabled{opacity:.4;cursor:default}
 .hbtn svg{width:18px;height:18px;flex:none}
+.hbtn .chev{color:var(--g400)}
+[data-act="undo"] svg,[data-act="redo"] svg{color:#fcd34d}
+[data-act="new"] svg{color:#4ade80}
+[data-menu="m-image"] svg:first-child{color:#60a5fa}
+[data-menu="m-layer"] svg:first-child{color:#a78bfa}
+[data-menu="m-sel"] svg:first-child{color:#22d3ee}
+[data-menu="m-filters"] svg:first-child{color:#f472b6}
+[data-act="fullscreen"] svg{color:#93c5fd}
+[data-menu="m-file"] svg{color:#60a5fa}
+[data-menu="m-export"] svg{color:#fb923c}
+[data-act="guide"] svg{color:#facc15}
+[data-act="settings"] svg{color:#c4b5fd}
+.hbtn:disabled svg{color:var(--g500)!important}
 .hbtn.ico{padding:0}
 .hbtn{flex:none}
 .menu.right{min-width:300px}
@@ -404,7 +417,7 @@ setTimeout(done,4500);
   <div class="hgroup">
     <button class="hbtn ico" title="Plein écran (F11)" data-act="fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
     <div class="dd">
-      <button class="hbtn ico wchev" data-menu="m-file" title="Fichier : ouvrir, enregistrer, enregistrer sous, backup auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button class="hbtn ico" data-menu="m-file" title="Fichier : ouvrir, enregistrer, enregistrer sous, backup auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg></button>
       <div class="menu right hidden" id="m-file">
         <button data-act="open">Ouvrir… <kbd>Ctrl+O</kbd></button>
         <button data-act="save">Enregistrer <kbd>Ctrl+S</kbd></button>
@@ -421,7 +434,7 @@ setTimeout(done,4500);
       </div>
     </div>
     <div class="dd">
-      <button class="hbtn ico wchev" data-menu="m-export" title="Images : enregistrer en PNG, JPEG ou WEBP (Ctrl+Maj+E)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m6 9 6 6 6-6"/></svg></button>
+      <button class="hbtn ico" data-menu="m-export" title="Images : enregistrer en PNG, JPEG ou WEBP (Ctrl+Maj+E)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
       <div class="menu right hidden" id="m-export">
         <div class="mlabel">Image aplatie (calques visibles)</div>
         <button data-act="saveas:png">PNG <kbd>.png · transparence</kbd></button>
@@ -523,6 +536,10 @@ const IC = {
   line: SV('<path d="M4 20 20 4"/><circle cx="4" cy="20" r="1.5" fill="currentColor"/><circle cx="20" cy="4" r="1.5" fill="currentColor"/>'),
   hand: SV('<path d="M18 11V6a2 2 0 0 0-4 0v5"/><path d="M14 10V4a2 2 0 0 0-4 0v6"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.9-6-2.3l-3.6-3.6a2 2 0 0 1 2.8-2.8L7 15"/>'),
   zoom: SV('<circle cx="11" cy="11" r="7"/><path d="m21 21-5-5M11 8v6M8 11h6"/>'),
+  grid: SV('<rect x="3" y="3" width="18" height="18" rx="1.5"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>'),
+  rulers: SV('<path d="M3 3h18v5H8v13H3z"/><path d="M7 3v3M11 3v2M15 3v3M19 3v2M3 12h2M3 16h3M3 20h2"/>'),
+  zoomout: SV('<circle cx="11" cy="11" r="7"/><path d="m21 21-5-5M8 11h6"/>'),
+  clone: SV('<path d="M5 22h14"/><path d="M19.3 13.7A2.5 2.5 0 0 0 17.5 13h-11A2.5 2.5 0 0 0 4 15.5V17a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5c0-.7-.3-1.3-.7-1.8z"/><path d="M14 13V8.5C14 7 15 7 15 5a3 3 0 0 0-6 0c0 2 1 2 1 3.5V13"/>'),
   eye: SV('<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>'),
   eyeoff: SV('<path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/>'),
   lock: SV('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'),
@@ -542,18 +559,19 @@ const TOOLS = [
     { id: 'lasso', name: 'Lasso', key: 'L', c: '#34d399' }, { id: 'wand', name: 'Baguette magique', key: 'W', c: '#facc15' }, { id: 'crop', name: 'Recadrage', key: 'C', c: '#fb923c' } ] },
   { id: 'paint', group: 'Peinture', items: [
     { id: 'brush', name: 'Pinceau', key: 'B', c: '#f472b6' }, { id: 'pencil', name: 'Crayon', key: 'N', c: '#e5e7eb' }, { id: 'eraser', name: 'Gomme', key: 'E', c: '#f9a8d4' },
-    { id: 'bucket', name: 'Pot de peinture', key: 'G', c: '#22d3ee' }, { id: 'gradient', name: 'Dégradé', key: 'Q', c: '#2dd4bf' }, { id: 'picker', name: 'Pipette', key: 'I', c: '#a3e635' } ] },
+    { id: 'bucket', name: 'Pot de peinture', key: 'G', c: '#22d3ee' }, { id: 'gradient', name: 'Dégradé', key: 'Q', c: '#2dd4bf' }, { id: 'picker', name: 'Pipette', key: 'I', c: '#a3e635' }, { id: 'clone', name: 'Tampon de duplication', key: 'S', c: '#fb7185' } ] },
   { id: 'shape', group: 'Formes & texte', items: [
     { id: 'text', name: 'Texte', key: 'T', c: '#fcd34d' }, { id: 'rect', name: 'Rectangle', key: 'R', c: '#fcd34d' }, { id: 'ellipse', name: 'Ellipse', key: 'U', c: '#fcd34d' },
     { id: 'line', name: 'Ligne', key: 'Y', c: '#fcd34d' } ] },
-  { id: 'view', group: 'Vue', items: [ { id: 'hand', name: 'Main (Espace)', key: 'H', c: '#4ade80' }, { id: 'zoom', name: 'Loupe', key: 'Z', c: '#4ade80' } ] },
+  { id: 'view', group: 'Vue', items: [ { id: 'hand', name: 'Main (Espace)', key: 'H', c: '#4ade80' }, { id: 'zoom', name: 'Loupe + (zoom avant)', key: 'Z', c: '#4ade80' }, { id: 'zoomout', name: 'Loupe − (zoom arrière)', key: 'Maj+Z', c: '#4ade80' } ] },
 ];
 const TOOL_BY_ID = {}; TOOLS.forEach(g => g.items.forEach(t => TOOL_BY_ID[t.id] = t));
-const PAINT_TOOLS = ['brush', 'pencil', 'eraser'];
-const EDIT_TOOLS = ['brush', 'pencil', 'eraser', 'bucket', 'gradient', 'rect', 'ellipse', 'line', 'move'];
+const PAINT_TOOLS = ['brush', 'pencil', 'eraser', 'clone'];
+const toolSize = () => tool === 'pencil' ? opts.pSize : tool === 'eraser' ? opts.eSize : tool === 'clone' ? opts.cSize : opts.size;
+const EDIT_TOOLS = ['brush', 'pencil', 'eraser', 'clone', 'bucket', 'gradient', 'rect', 'ellipse', 'line', 'move'];
 
 const OPT_DEFAULTS = {
-  size: 20, hard: 80, opacity: 100, pSize: 2, pOpacity: 100, eSize: 30, eHard: 80, eOpacity: 100,
+  size: 20, hard: 80, opacity: 100, pSize: 2, pOpacity: 100, cSize: 40, cHard: 60, cOpacity: 100, cAligned: true, cSample: 'layer', eSize: 30, eHard: 80, eOpacity: 100,
   tol: 32, contig: true, sample: 'layer', bOpacity: 100, wTol: 32, wContig: true, wSample: 'merged',
   gType: 'linear', gMode: 'c2', gOpacity: 100, font: 'Arial', fSize: 48, bold: false, italic: false,
   shMode: 'fill', shWidth: 4, shOpacity: 100, lnWidth: 4, lnOpacity: 100, selMode: 'new', pkSample: 'merged'
@@ -564,7 +582,7 @@ const saveOpts = () => { try { localStorage.setItem('momoshop.opts', JSON.string
 
 /* ---------------- paramètres de l'application ---------------- */
 const S_DEF = { splash: true, gridZoom: 12, checker: 'light', stageBg: '#2a2f38', wheel: 'zoom', history: 40,
-  newW: 1920, newH: 1080, newBg: '#ffffff', quality: 90, backup: 5, confirmClose: true, backupPrompt: true };
+  newW: 1920, newH: 1080, newBg: '#ffffff', quality: 90, showGrid: false, showRulers: false, gridSize: 50, gridColor: '#3b82f6', backup: 5, confirmClose: true, backupPrompt: true };
 let S = Object.assign({}, S_DEF);
 try { Object.assign(S, JSON.parse(localStorage.getItem('momoshop.settings') || '{}')); } catch (e) {}
 const saveSettings = () => { try { localStorage.setItem('momoshop.settings', JSON.stringify(S)); } catch (e) {} };
@@ -681,6 +699,14 @@ function draw() {
     for (let y = y0; y <= y1; y++) { const Y = Math.round(sy + y * cam.z) + .5; c.moveTo(sx + x0 * cam.z, Y); c.lineTo(sx + x1 * cam.z, Y); }
     c.stroke(); c.restore();
   }
+  // grille
+  if (S.showGrid && S.gridSize > 0 && S.gridSize * cam.z >= 4) {
+    const g = S.gridSize, x0 = Math.max(0, Math.floor(-sx / cam.z / g)), x1 = Math.min(doc.w, Math.ceil((W - sx) / cam.z / g) * g), y0 = Math.max(0, Math.floor(-sy / cam.z / g)), y1 = Math.min(doc.h, Math.ceil((H - sy) / cam.z / g) * g);
+    c.save(); c.beginPath(); c.strokeStyle = S.gridColor; c.globalAlpha = .55; c.lineWidth = 1;
+    for (let x = x0 * g; x <= x1; x += g) { const X = Math.round(sx + x * cam.z) + .5; c.moveTo(X, Math.max(0, sy)); c.lineTo(X, Math.min(H, sy + sh)); }
+    for (let y = y0 * g; y <= y1; y += g) { const Y = Math.round(sy + y * cam.z) + .5; c.moveTo(Math.max(0, sx), Y); c.lineTo(Math.min(W, sx + sw), Y); }
+    c.stroke(); c.restore();
+  }
   // contour du calque actif s'il déborde / est décalé
   const l = L();
   if (l && (l.x || l.y || l.canvas.width !== doc.w || l.canvas.height !== doc.h) && tool === 'move') {
@@ -702,15 +728,45 @@ function draw() {
     c.restore();
   }
   if (cropRect) drawCrop(c);
+  if (tool === 'clone' && cloneSrc) {
+    const sp = (cloneOff && mouse.in) ? { x: mouse.x - cloneOff.x, y: mouse.y - cloneOff.y } : cloneSrc;
+    const X = cam.x + sp.x * cam.z, Y = cam.y + sp.y * cam.z, r = Math.max(4, opts.cSize * cam.z / 2);
+    c.save(); c.lineWidth = 2.5; c.strokeStyle = '#000'; c.globalAlpha = .55; c.beginPath(); c.arc(X, Y, r, 0, Math.PI * 2); c.moveTo(X - 8, Y); c.lineTo(X + 8, Y); c.moveTo(X, Y - 8); c.lineTo(X, Y + 8); c.stroke();
+    c.globalAlpha = 1; c.lineWidth = 1; c.strokeStyle = '#fb7185'; c.stroke(); c.restore();
+  }
+  if (S.showRulers) drawRulers(c, W, H);
   // curseur pinceau
   if (mouse.in && PAINT_TOOLS.includes(tool) && !spaceDown && !(drag && drag.kind === 'pan')) {
-    const size = tool === 'pencil' ? opts.pSize : tool === 'eraser' ? opts.eSize : opts.size;
+    const size = toolSize();
     const r = Math.max(1, size * cam.z / 2);
     c.save(); c.beginPath(); c.arc(mouse.sx, mouse.sy, r, 0, Math.PI * 2);
     c.strokeStyle = '#000'; c.lineWidth = 2.5; c.globalAlpha = .55; c.stroke(); c.globalAlpha = 1; c.strokeStyle = '#fff'; c.lineWidth = 1; c.stroke();
     if (r < 5) { c.beginPath(); c.moveTo(mouse.sx - 7, mouse.sy); c.lineTo(mouse.sx + 7, mouse.sy); c.moveTo(mouse.sx, mouse.sy - 7); c.lineTo(mouse.sx, mouse.sy + 7); c.stroke(); }
     c.restore();
   }
+}
+const RULER = 20;
+function drawRulers(c, W, H) {
+  const z = cam.z, steps = [1, 2, 5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000, 5000, 10000];
+  const major = steps.find(v => v * z >= 64) || 10000, minor = major / (major % 5 === 0 ? 5 : 2) ;
+  c.save(); c.fillStyle = '#1f2937'; c.fillRect(0, 0, W, RULER); c.fillRect(0, 0, RULER, H);
+  c.strokeStyle = '#4b5563'; c.beginPath(); c.moveTo(0, RULER - .5); c.lineTo(W, RULER - .5); c.moveTo(RULER - .5, 0); c.lineTo(RULER - .5, H); c.stroke();
+  // zone du document
+  c.fillStyle = '#2b3646'; c.fillRect(Math.max(RULER, cam.x), 0, Math.max(0, Math.min(W, cam.x + doc.w * z) - Math.max(RULER, cam.x)), RULER - 1);
+  c.fillRect(0, Math.max(RULER, cam.y), RULER - 1, Math.max(0, Math.min(H, cam.y + doc.h * z) - Math.max(RULER, cam.y)));
+  c.font = '10px system-ui'; c.fillStyle = '#9ca3af'; c.strokeStyle = '#6b7280'; c.beginPath();
+  let v0 = Math.floor((RULER - cam.x) / z / minor) * minor;
+  for (let v = v0; cam.x + v * z <= W; v += minor) { const X = Math.round(cam.x + v * z) + .5; if (X < RULER) continue; const isM = Math.abs(v / major - Math.round(v / major)) < 1e-6;
+    c.moveTo(X, isM ? 4 : RULER - 5); c.lineTo(X, RULER); if (isM) c.fillText(String(Math.round(v)), X + 3, 11); }
+  v0 = Math.floor((RULER - cam.y) / z / minor) * minor;
+  for (let v = v0; cam.y + v * z <= H; v += minor) { const Y = Math.round(cam.y + v * z) + .5; if (Y < RULER) continue; const isM = Math.abs(v / major - Math.round(v / major)) < 1e-6;
+    c.moveTo(isM ? 4 : RULER - 5, Y); c.lineTo(RULER, Y);
+    if (isM) { c.save(); c.translate(11, Y + 3); c.rotate(-Math.PI / 2); c.textAlign = 'right'; c.fillText(String(Math.round(v)), 0, 0); c.restore(); } }
+  c.stroke();
+  // position du curseur
+  if (mouse.in) { c.strokeStyle = '#f87171'; c.beginPath(); c.moveTo(Math.round(mouse.sx) + .5, 0); c.lineTo(Math.round(mouse.sx) + .5, RULER); c.moveTo(0, Math.round(mouse.sy) + .5); c.lineTo(RULER, Math.round(mouse.sy) + .5); c.stroke(); }
+  c.fillStyle = '#1f2937'; c.fillRect(0, 0, RULER - 1, RULER - 1); c.fillStyle = '#6b7280'; c.font = '9px system-ui'; c.fillText('px', 4, 13);
+  c.restore();
 }
 function drawAnts(c, segs) {
   const sx = cam.x, sy = cam.y, z = cam.z;
@@ -726,23 +782,26 @@ function drawShapeOutline(c, shape, r) {
 }
 function drawCrop(c) {
   const r = normRect(cropRect), x = cam.x + r.x * cam.z, y = cam.y + r.y * cam.z, w = r.w * cam.z, h = r.h * cam.z;
-  c.save(); c.fillStyle = '#000000a0'; c.beginPath(); c.rect(0, 0, view.width, view.height); c.rect(x, y, w, h); c.fill('evenodd');
-  c.strokeStyle = '#fff'; c.lineWidth = 1; c.strokeRect(x + .5, y + .5, w, h);
-  c.strokeStyle = '#ffffff55'; c.beginPath();
+  c.save();
+  c.lineWidth = 1.5; c.strokeStyle = '#000'; c.strokeRect(x + .5, y + .5, w, h);
+  c.setLineDash([6, 4]); c.lineDashOffset = -antsOff; c.strokeStyle = '#fb923c'; c.strokeRect(x + .5, y + .5, w, h); c.setLineDash([]);
+  c.lineWidth = 1; c.strokeStyle = '#fb923c66'; c.beginPath();
   for (let i = 1; i < 3; i++) { c.moveTo(x + w * i / 3, y); c.lineTo(x + w * i / 3, y + h); c.moveTo(x, y + h * i / 3); c.lineTo(x + w, y + h * i / 3); }
   c.stroke();
   c.fillStyle = '#fff'; c.strokeStyle = '#000';
   for (const [hx, hy] of [[x, y], [x + w / 2, y], [x + w, y], [x, y + h / 2], [x + w, y + h / 2], [x, y + h], [x + w / 2, y + h], [x + w, y + h]]) { c.fillRect(hx - 4, hy - 4, 8, 8); c.strokeRect(hx - 4 + .5, hy - 4 + .5, 7, 7); }
-  c.font = '12px system-ui'; c.fillText(`${Math.round(r.w)} × ${Math.round(r.h)} px — Entrée pour valider`, x + 4, y - 9);
+  const lab = `${Math.round(r.w)} × ${Math.round(r.h)} px — Entrée pour valider`; c.font = '12px system-ui';
+  const tw = c.measureText(lab).width; c.fillStyle = '#1f2937'; c.fillRect(x, y - 26, tw + 14, 20); c.strokeStyle = '#fb923c'; c.strokeRect(x + .5, y - 25.5, tw + 13, 19);
+  c.fillStyle = '#fff'; c.fillText(lab, x + 7, y - 11.5);
   c.restore();
 }
-setInterval(() => { if (sel || (drag && drag.kind === 'marquee')) { antsOff = (antsOff + 1) % 8; req(); } }, 120);
+setInterval(() => { if (sel || cropRect || (drag && drag.kind === 'marquee')) { antsOff = (antsOff + 1) % 8; req(); } }, 120);
 
 /* ---------------- caméra ---------------- */
 function fit() {
   const W = stage.clientWidth, H = stage.clientHeight;
   cam.z = Math.min((W - 60) / doc.w, (H - 60) / doc.h, 4); if (!(cam.z > 0)) cam.z = 1;
-  cam.x = Math.round((W - doc.w * cam.z) / 2); cam.y = Math.round((H - doc.h * cam.z) / 2); updateStatus(); req();
+  const o = S.showRulers ? RULER / 2 : 0; cam.x = Math.round((W - doc.w * cam.z) / 2 + o); cam.y = Math.round((H - doc.h * cam.z) / 2 + o); updateStatus(); req();
 }
 function setZoom(z, ax = stage.clientWidth / 2, ay = stage.clientHeight / 2) {
   z = clamp(z, 0.02, 64); const dx = (ax - cam.x) / cam.z, dy = (ay - cam.y) / cam.z;
@@ -857,8 +916,19 @@ function getDab(size, hard, col) {
   dabCache.set(k, c); return c;
 }
 function hexA(hex, a) { const { r, g, b } = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+/* ---- tampon de duplication ---- */
+let cloneSrc = null, cloneOff = null, cloneSnap = null, cloneTmp = mkCanvas(1, 1);
+function cloneDab(p, size) {
+  const d = getDab(Math.max(1, size), opts.cHard, '#000000'), w = d.width;
+  if (cloneTmp.width !== w) cloneTmp = mkCanvas(w, w);
+  const t = cloneTmp.getContext('2d'); t.globalCompositeOperation = 'source-over'; t.clearRect(0, 0, w, w);
+  t.drawImage(cloneSnap, -(p.x - cloneOff.x - w / 2), -(p.y - cloneOff.y - w / 2));
+  t.globalCompositeOperation = 'destination-in'; t.drawImage(d, 0, 0);
+  effect.getContext('2d').drawImage(cloneTmp, p.x - w / 2, p.y - w / 2);
+}
 function dab(p, size) {
   const c = effect.getContext('2d');
+  if (tool === 'clone') return cloneDab(p, size);
   if (tool === 'pencil') { const s = Math.max(1, Math.round(size)); c.fillStyle = color1; c.fillRect(Math.floor(p.x - s / 2 + .5), Math.floor(p.y - s / 2 + .5), s, s); return; }
   const hard = tool === 'eraser' ? opts.eHard : opts.hard;
   const col = tool === 'eraser' ? '#000000' : color1;
@@ -866,7 +936,7 @@ function dab(p, size) {
   c.drawImage(d, p.x - d.width / 2, p.y - d.height / 2);
 }
 function strokeTo(p, pressure) {
-  const base = tool === 'pencil' ? opts.pSize : tool === 'eraser' ? opts.eSize : opts.size;
+  const base = toolSize();
   const size = Math.max(1, base * (pressure ?? 1));
   const last = drag.last, dx = p.x - last.x, dy = p.y - last.y, dist = Math.hypot(dx, dy);
   const step = tool === 'pencil' ? Math.max(.5, size * .5) : Math.max(.5, size * .12);
@@ -878,6 +948,7 @@ function strokeTo(p, pressure) {
 function strokeParams() {
   if (tool === 'eraser') return { op: 'destination-out', alpha: opts.eOpacity / 100 };
   if (tool === 'pencil') return { op: 'source-over', alpha: opts.pOpacity / 100 };
+  if (tool === 'clone') return { op: 'source-over', alpha: opts.cOpacity / 100 };
   return { op: 'source-over', alpha: opts.opacity / 100 };
 }
 function clearEffect() { effect.getContext('2d').clearRect(0, 0, effect.width, effect.height); }
@@ -1034,6 +1105,7 @@ view.addEventListener('pointerdown', e => {
   if (e.altKey && ['brush', 'pencil', 'bucket', 'gradient', 'rect', 'ellipse', 'line', 'text'].includes(tool)) { pickAt(p, false); return; }
   switch (tool) {
     case 'zoom': setZoom(cam.z * (e.altKey ? 1 / 1.6 : 1.6), p.sx, p.sy); return;
+    case 'zoomout': setZoom(cam.z * (e.altKey ? 1.6 : 1 / 1.6), p.sx, p.sy); return;
     case 'picker': pickAt(p, e.altKey); drag = { kind: 'pick' }; return;
     case 'text': e.preventDefault(); startText(p); return;
     case 'marquee': case 'ellsel': drag = { kind: 'marquee', shape: tool === 'ellsel' ? 'ellipse' : 'rect', a: p, rect: { x: p.x, y: p.y, w: 0, h: 0 }, mode: selModeFrom(e), moved: false }; return;
@@ -1045,13 +1117,21 @@ view.addEventListener('pointerdown', e => {
       else { drag = { kind: 'crop', mode: 'new', a: p }; cropRect = { x: p.x, y: p.y, w: 0, h: 0 }; }
       return; }
   }
+  if (tool === 'clone' && (e.ctrlKey || e.metaKey)) { cloneSrc = { x: p.x, y: p.y }; cloneOff = null; renderOptbar(); req(); toast('Source du tampon définie.'); return; }
+  if (tool === 'clone' && !cloneSrc) { toast('Ctrl+clic sur l\'image pour choisir la source du tampon.'); return; }
   if (EDIT_TOOLS.includes(tool) && !editable()) return;
+  if (tool === 'clone') {
+    // instantané de la source (calque actif ou toutes les couches) au début du trait
+    cloneSnap = mkCanvas(doc.w, doc.h); const sc = cloneSnap.getContext('2d');
+    if (opts.cSample === 'merged') { composite(comp, false); sc.drawImage(comp, 0, 0); } else { const l = L(); sc.drawImage(l.canvas, l.x, l.y); }
+    if (!cloneOff || !opts.cAligned) cloneOff = { x: p.x - cloneSrc.x, y: p.y - cloneSrc.y };
+  }
   if (tool === 'move') { const l = L(); pushDoc(); drag = { kind: 'move', a: p, ox: l.x, oy: l.y, moved: false }; return; }
   if (tool === 'bucket') { bucketAt(p); return; }
   if (PAINT_TOOLS.includes(tool)) {
     clearEffect(); const pr = e.pointerType === 'pen' ? (e.pressure || .5) : 1;
     drag = { kind: 'paint', last: p, ...strokeParams() };
-    const base = tool === 'pencil' ? opts.pSize : tool === 'eraser' ? opts.eSize : opts.size;
+    const base = toolSize();
     dab(p, Math.max(1, base * pr)); previewEffect(drag.op, drag.alpha); return;
   }
   if (tool === 'gradient') { drag = { kind: 'gradient', a: p, b: p }; return; }
@@ -1061,7 +1141,7 @@ view.addEventListener('pointermove', e => {
   if (!doc) return;
   const p = toDoc(e); mouse = { sx: p.sx, sy: p.sy, x: p.x, y: p.y, in: true };
   $('#st-pos').textContent = `${Math.floor(p.x)}, ${Math.floor(p.y)}`;
-  if (!drag) { if (PAINT_TOOLS.includes(tool)) req(); if (tool === 'crop' && !spaceDown) { const h = cropHit(p.sx, p.sy); view.style.cursor = !h ? 'crosshair' : h === 'in' ? 'move' : ({ n: 'ns-resize', s: 'ns-resize', e: 'ew-resize', w: 'ew-resize', nw: 'nwse-resize', se: 'nwse-resize', ne: 'nesw-resize', sw: 'nesw-resize' })[h]; } return; }
+  if (!drag) { if (PAINT_TOOLS.includes(tool) || S.showRulers || tool === 'clone') req(); if (tool === 'crop' && !spaceDown) { const h = cropHit(p.sx, p.sy); view.style.cursor = !h ? 'crosshair' : h === 'in' ? 'move' : ({ n: 'ns-resize', s: 'ns-resize', e: 'ew-resize', w: 'ew-resize', nw: 'nwse-resize', se: 'nwse-resize', ne: 'nesw-resize', sw: 'nesw-resize' })[h]; } return; }
   switch (drag.kind) {
     case 'pan': cam.x = drag.cx + e.clientX - drag.sx; cam.y = drag.cy + e.clientY - drag.sy; styleTextEdit(); req(); break;
     case 'pick': pickAt(p, e.altKey); break;
@@ -1119,7 +1199,7 @@ view.addEventListener('wheel', e => {
 function updateCursor() {
   let c = 'crosshair';
   if (spaceDown || tool === 'hand') c = drag && drag.kind === 'pan' ? 'grabbing' : 'grab';
-  else if (tool === 'move') c = 'move'; else if (tool === 'zoom') c = 'zoom-in'; else if (tool === 'text') c = 'text';
+  else if (tool === 'move') c = 'move'; else if (tool === 'zoom') c = 'zoom-in'; else if (tool === 'zoomout') c = 'zoom-out'; else if (tool === 'text') c = 'text';
   else if (PAINT_TOOLS.includes(tool)) c = 'none';
   view.style.cursor = c;
 }
@@ -1137,7 +1217,7 @@ document.addEventListener('keydown', e => {
       'n': () => e.shiftKey ? act('layer:new') : act('new'), 'o': () => act('open'), 's': () => e.shiftKey ? saveAsDialog() : act('save'),
       'z': () => e.shiftKey ? redo() : undo(), 'y': () => redo(), 'a': () => selectAll(), 'd': () => setSelection(null),
       'i': () => e.altKey ? act('resize') : e.shiftKey ? invertSel() : act('flt:invert'), 'j': () => act('layer:copysel'), 'e': () => e.shiftKey ? saveAsDialog('png') : act('layer:merge'),
-      'c': () => e.altKey ? act('canvassize') : act('copy'), 'x': () => act('cut'), '0': () => fit(), '1': () => setZoom(1), '+': () => setZoom(cam.z * 1.25), '=': () => setZoom(cam.z * 1.25), '-': () => setZoom(cam.z / 1.25)
+      'c': () => e.altKey ? act('canvassize') : act('copy'), 'r': () => toggleView('showRulers'), "'": () => toggleView('showGrid'), '4': () => toggleView('showGrid'), 'x': () => act('cut'), '0': () => fit(), '1': () => setZoom(1), '+': () => setZoom(cam.z * 1.25), '=': () => setZoom(cam.z * 1.25), '-': () => setZoom(cam.z / 1.25)
     };
     if (map[k]) { e.preventDefault(); map[k](); }
     return;
@@ -1152,9 +1232,10 @@ document.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') cam.x += s; if (e.key === 'ArrowRight') cam.x -= s; if (e.key === 'ArrowUp') cam.y += s; if (e.key === 'ArrowDown') cam.y -= s;
     styleTextEdit(); req(); return;
   }
-  if (k === '[' || k === ']') { const f = k === ']' ? 1.2 : 1 / 1.2; const key = tool === 'pencil' ? 'pSize' : tool === 'eraser' ? 'eSize' : 'size'; opts[key] = clamp(Math.round(opts[key] * f + (k === ']' ? 1 : -1)), 1, 500); saveOpts(); renderOptbar(); req(); return; }
+  if (k === '[' || k === ']') { const f = k === ']' ? 1.2 : 1 / 1.2; const key = tool === 'pencil' ? 'pSize' : tool === 'eraser' ? 'eSize' : tool === 'clone' ? 'cSize' : 'size'; opts[key] = clamp(Math.round(opts[key] * f + (k === ']' ? 1 : -1)), 1, 500); saveOpts(); renderOptbar(); req(); return; }
   if (k === 'x') { [color1, color2] = [color2, color1]; setColor1(color1); return; }
   if (k === 'd') { color2 = '#ffffff'; setColor1('#000000'); return; }
+  if (k === 'z' && e.shiftKey) { setTool('zoomout'); return; }
   for (const id in TOOL_BY_ID) if (TOOL_BY_ID[id].key.toLowerCase() === k) { setTool(id); return; }
 });
 document.addEventListener('keyup', e => { if (e.key === ' ') { spaceDown = false; updateCursor(); } });
@@ -1214,21 +1295,31 @@ try { tsecState = JSON.parse(localStorage.getItem('momoshop.tsec') || '{}'); } c
 function buildTools() {
   const a = $('#tools'); let h = '';
   const sec = (id, name, inner) => `<div class="tsec${tsecState[id] ? ' collapsed' : ''}" data-sec="${id}"><div class="tsec-h">${name}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg></div><div class="tframe">${inner}</div></div>`;
-  TOOLS.forEach(g => h += sec(g.id, g.group, `<div class="tgrid">${g.items.map(t => `<button class="tool-btn" data-tool="${t.id}" title="${t.name} (${t.key})" style="color:${t.c}">${IC[t.id]}</button>`).join('')}</div>`));
+  TOOLS.forEach(g => h += sec(g.id, g.group, `<div class="tgrid">${g.items.map(t => `<button class="tool-btn" data-tool="${t.id}" title="${t.name} (${t.key})" style="color:${t.c}">${IC[t.id]}</button>`).join('')}${g.id === 'view' ? `<button class="tool-btn" data-toggle="showGrid" title="Afficher / masquer la grille (Ctrl+')" style="color:#60a5fa">${IC.grid}</button><button class="tool-btn" data-toggle="showRulers" title="Afficher / masquer les règles (Ctrl+R)" style="color:#facc15">${IC.rulers}</button>` : ''}</div>`));
   h += sec('colors', 'Couleurs', `<div class="colors">
     <div class="sw" id="sw1" title="Couleur 1 (premier plan)"></div><div class="sw" id="sw2" title="Couleur 2 (arrière-plan) — clic : échanger"></div>
     <button id="sw-swap" title="Échanger (X)">${IC.swap}</button><button id="sw-reset" title="Noir / blanc (D)">${IC.reset}</button></div>`);
   a.innerHTML = h;
   a.querySelectorAll('[data-tool]').forEach(b => b.onclick = () => setTool(b.dataset.tool));
+  a.querySelectorAll('[data-toggle]').forEach(b => b.onclick = () => toggleView(b.dataset.toggle));
+  updateToggles();
   a.querySelectorAll('.tsec-h').forEach(hd => hd.onclick = () => { const s = hd.parentElement; s.classList.toggle('collapsed'); tsecState[s.dataset.sec] = s.classList.contains('collapsed'); try { localStorage.setItem('momoshop.tsec', JSON.stringify(tsecState)); } catch (e) {} });
   const sw = () => { [color1, color2] = [color2, color1]; setColor1(color1); };
   $('#sw-swap').onclick = sw; $('#sw2').onclick = sw; $('#sw1').onclick = () => $('#hex').focus();
   $('#sw-reset').onclick = () => { color2 = '#ffffff'; setColor1('#000000'); };
 }
+function cropToSelection() {
+  if (!sel) return false; const b = sel.bbox;
+  if (b.x === 0 && b.y === 0 && b.w === doc.w && b.h === doc.h) { toast('La sélection couvre déjà toute l\'image.'); return true; }
+  changeCanvas(b.w, b.h, -b.x, -b.y); toast(`Recadré sur la sélection : ${b.w} × ${b.h} px`); return true;
+}
+function toggleView(k) { S[k] = !S[k]; saveSettings(); updateToggles(); req(); toast((k === 'showGrid' ? 'Grille ' : 'Règles ') + (S[k] ? 'affichées' : 'masquées') + '.'); }
+function updateToggles() { $$('[data-toggle]').forEach(b => b.classList.toggle('active', !!S[b.dataset.toggle])); }
 function setTool(id) {
+  if (id === 'crop' && sel && doc) { cropToSelection(); return; }
   if (textEdit) commitText();
   if (id !== 'crop') cropRect = null;
-  else if (!cropRect && doc) cropRect = sel ? { ...sel.bbox } : { x: 0, y: 0, w: doc.w, h: doc.h };
+  else if (!cropRect && doc) cropRect = { x: 0, y: 0, w: doc.w, h: doc.h };
   tool = id; $$('.tool-btn').forEach(b => b.classList.toggle('active', b.dataset.tool === id));
   renderOptbar(); updateCursor(); req();
 }
@@ -1257,14 +1348,15 @@ function optSpec() {
       return [{ type: 'hint', text: r ? `Cadre : <b style="color:var(--g200)">${Math.round(r.w)} × ${Math.round(r.h)} px</b>` : 'Aucun cadre' },
         { type: 'btn', label: 'Valider (Entrée)', cls: 'ok', row: 1, fn: applyCrop }, { type: 'btn', label: 'Annuler', row: 1, fn: () => { cropRect = null; renderOptbar(); req(); } },
         { type: 'btn', label: 'Cadre = toute l\'image', fn: () => { cropRect = { x: 0, y: 0, w: doc.w, h: doc.h }; renderOptbar(); req(); } },
-        ...(sel ? [{ type: 'btn', label: 'Cadre = sélection', fn: () => { cropRect = { ...sel.bbox }; renderOptbar(); req(); } }] : []),
         { type: 'hint', text: 'Tirer les poignées ou les bords pour ajuster, glisser dans le cadre pour le déplacer, tracer à l\'extérieur pour un nouveau cadre. Le cadre peut dépasser l\'image pour l\'agrandir.' }]; }
     case 'text': return [selectOpt('Police', 'font', ['Arial', 'Verdana', 'Trebuchet MS', 'Georgia', 'Times New Roman', 'Courier New', 'Impact', 'Comic Sans MS', 'Tahoma', 'Segoe UI'].map(f => [f, f])), range('Taille', 'fSize', 6, 400, 'px'), check('Gras', 'bold'), check('Italique', 'italic'),
       textEdit ? { type: 'btn', label: 'Valider le texte (Ctrl+Entrée)', cls: 'ok', fn: commitText } : { type: 'hint', text: 'Clic sur l\'image pour écrire — le texte crée un nouveau calque' }];
     case 'rect': case 'ellipse': return [selectOpt('Style', 'shMode', [['fill', 'Plein (couleur 1)'], ['stroke', 'Contour (couleur 1)'], ['both', 'Plein 1 + contour 2']]), range('Contour', 'shWidth', 1, 100, 'px'), range('Opacité', 'shOpacity', 1, 100, '%'), { type: 'hint', text: 'Maj = carré / cercle' }];
     case 'line': return [range('Épaisseur', 'lnWidth', 1, 200, 'px'), range('Opacité', 'lnOpacity', 1, 100, '%'), { type: 'hint', text: 'Maj = angles de 45°' }];
     case 'move': return [{ type: 'hint', text: 'Glisser pour déplacer le calque actif' }, { type: 'btn', label: 'Recentrer le calque', fn: () => { const l = L(); pushDoc(); l.x = Math.round((doc.w - l.canvas.width) / 2); l.y = Math.round((doc.h - l.canvas.height) / 2); req(true); } }, { type: 'btn', label: 'Remettre à 0,0', fn: () => { const l = L(); pushDoc(); l.x = 0; l.y = 0; req(true); } }];
-    case 'hand': case 'zoom': return [{ type: 'btn', label: 'Ajuster à l\'écran (Ctrl+0)', fn: fit }, { type: 'btn', label: '100 % (Ctrl+1)', fn: () => setZoom(1) }, { type: 'hint', text: tool === 'zoom' ? 'Clic : zoom avant · Alt+clic : zoom arrière' : 'Glisser · aussi Espace ou clic-molette avec n\'importe quel outil' }];
+    case 'clone': return [range('Taille', 'cSize', 1, 500, 'px'), range('Dureté', 'cHard', 0, 100, '%'), range('Opacité', 'cOpacity', 1, 100, '%'), check('Aligné', 'cAligned'), selectOpt('Échantillon', 'cSample', SAMPLE),
+      { type: 'hint', text: (cloneSrc ? `Source : <b style="color:var(--g200)">${Math.round(cloneSrc.x)}, ${Math.round(cloneSrc.y)}</b><br>` : '<b style="color:#fb7185">Pas encore de source.</b><br>') + '<b>Ctrl+clic</b> : choisir la source · <b>clic / glisser</b> : cloner. <b>Aligné</b> : le décalage source → pinceau est gardé d\'un trait à l\'autre ; décoché, chaque trait repart de la source.' }];
+    case 'hand': case 'zoom': case 'zoomout': return [{ type: 'btn', label: 'Ajuster à l\'écran (Ctrl+0)', fn: fit }, { type: 'btn', label: '100 % (Ctrl+1)', fn: () => setZoom(1) }, { type: 'hint', text: tool === 'zoom' ? 'Clic : zoom avant · Alt+clic : zoom arrière' : tool === 'zoomout' ? 'Clic : zoom arrière · Alt+clic : zoom avant' : 'Glisser · aussi Espace ou clic-molette avec n\'importe quel outil' }];
   }
   return [];
 }
@@ -1755,6 +1847,7 @@ async function settingsDialog() {
     <div class="row"><span>Molette</span>${sel('s-wheel', [['zoom', 'Molette = zoom (Maj = défilement horizontal)'], ['scroll', 'Molette = défilement, Ctrl+molette = zoom (pavé tactile)']], S.wheel)}</div>
     <div class="row"><span>Damier (transparence)</span>${sel('s-checker', [['light', 'Clair'], ['mid', 'Moyen'], ['dark', 'Sombre']], S.checker)}</div>
     <div class="row"><span>Fond de travail</span><input type="color" id="s-stage" value="${S.stageBg}" style="width:60px;height:28px;background:none;border:0;flex:none"><button class="mini" id="s-stage-reset" type="button">Par défaut</button></div>
+    <div class="row"><span>Grille (pas)</span><input type="number" id="s-gsize" value="${S.gridSize}" min="2" max="2000" style="flex:none;width:90px"><span style="color:var(--g400)">px</span><input type="color" id="s-gcol" value="${S.gridColor}" style="width:50px;height:28px;background:none;border:0;flex:none"></div>
     <div class="row"><span>Grille de pixels</span>${sel('s-grid', [[0, 'Jamais'], [8, 'À partir de 800 %'], [12, 'À partir de 1 200 %'], [16, 'À partir de 1 600 %']], S.gridZoom)}</div>
   </div>
   <div class="spane" data-p="d">
@@ -1782,11 +1875,11 @@ async function settingsDialog() {
   if (!r) return;
   const v = id => r.querySelector('#' + id);
   Object.assign(S, { backup: +v('s-backup').value, backupPrompt: v('s-bprompt').checked, history: +v('s-hist').value, confirmClose: v('s-close').checked,
-    splash: v('s-splash').checked, wheel: v('s-wheel').value, checker: v('s-checker').value, stageBg: v('s-stage').value, gridZoom: +v('s-grid').value,
+    splash: v('s-splash').checked, wheel: v('s-wheel').value, checker: v('s-checker').value, stageBg: v('s-stage').value, gridZoom: +v('s-grid').value, gridSize: clamp(+v('s-gsize').value || 50, 2, 2000), gridColor: v('s-gcol').value,
     newW: clamp(+v('s-nw').value | 0, 1, 12000), newH: clamp(+v('s-nh').value | 0, 1, 12000), newBg: v('s-nbg').value, quality: +v('s-q').value });
   saveSettings(); applySettings(); toast('Paramètres enregistrés.');
 }
-function applySettings() { checker = null; $('#stage').style.background = S.stageBg; setBackupInterval(S.backup); while (undoStack.length > S.history) undoStack.shift(); updateUndoBtns(); req(); }
+function applySettings() { checker = null; updateToggles(); $('#stage').style.background = S.stageBg; setBackupInterval(S.backup); while (undoStack.length > S.history) undoStack.shift(); updateUndoBtns(); req(); }
 
 /* ---------------- installation ---------------- */
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -1842,13 +1935,14 @@ const GUIDE = [
     GI('La sélection limite tout', 'Pinceau, gomme, pot, dégradé, formes, filtres et effacement ne touchent que l\'intérieur de la sélection.'),
     GI('Menu Sélection', `Tout ${K('Ctrl+A')}, désélectionner ${K('Ctrl+D')}, intervertir ${K('Ctrl+Maj+I')}, sélectionner le contenu du calque, copier ${K('Ctrl+C')}, couper ${K('Ctrl+X')}, coller ${K('Ctrl+V')} (crée un calque ; une image copiée ailleurs, ex. capture d\'écran, se colle aussi).`),
     GI('Déplacer ' + K('V'), 'Glisse le calque actif. Le volet <b>Outil en cours</b> permet de le recentrer ou de le remettre à 0,0.'),
-    GI('Recadrage ' + K('C'), `L\'outil propose d\'emblée un cadre sur toute l\'image (ou sur la sélection s\'il y en a une). Tire les poignées ou les bords pour l\'ajuster, glisse dans le cadre pour le déplacer, ou trace un nouveau cadre. ${K('Entrée')}, double-clic dans le cadre ou <b>Valider</b> appliquent ; ${K('Échap')} annule. Le cadre peut dépasser l\'image pour l\'agrandir. Aussi dans le menu <b>Image → Recadrer</b> (directement sur la sélection s\'il y en a une).`)]]]],
+    GI('Recadrage ' + K('C'), `<b>Avec une sélection</b>, l\'outil (ou Image → Recadrer) recadre <b>immédiatement</b> au rectangle qui contient toute la sélection, même irrégulière (lasso, baguette). <b>Sans sélection</b>, il propose un cadre sur toute l\'image. Tire les poignées ou les bords pour l\'ajuster, glisse dans le cadre pour le déplacer, ou trace un nouveau cadre. ${K('Entrée')}, double-clic dans le cadre ou <b>Valider</b> appliquent ; ${K('Échap')} annule. Le cadre peut dépasser l\'image pour l\'agrandir. Aussi dans le menu <b>Image → Recadrer</b>.`)]]]],
   ['paint', '🖌️', 'Peinture & couleurs', [
     ['Outils', [GI('Pinceau ' + K('B'), `Taille, dureté (bord net ou doux), opacité. Pression prise en compte avec un stylet. ${K('[')} ${K(']')} changent la taille.`),
       GI('Crayon ' + K('N'), 'Pixels nets sans lissage, idéal pour le pixel-art (combiné à la grille de pixels au fort zoom).'),
       GI('Gomme ' + K('E'), 'Rend transparent. Taille, dureté et opacité réglables.'),
       GI('Pot de peinture ' + K('G'), 'Remplit une zone de couleur proche (tolérance, contigu, échantillon).'),
       GI('Dégradé ' + K('Q'), 'Glisser pour tracer : linéaire ou radial, couleur 1 → couleur 2 ou couleur 1 → transparent.'),
+      GI('Tampon de duplication ' + K('S'), `Recopie une partie de l\'image ailleurs (retouche, effacer un défaut). ${K('Ctrl')}+clic choisit la <b>source</b> sur le calque actif (ou toutes les couches selon l\'échantillon), puis clic / glisser pour peindre avec les pixels de la source ; un repère rose montre l\'endroit copié. <b>Aligné</b> garde le même décalage d\'un trait à l\'autre. Taille, dureté, opacité réglables, ${K('[')} ${K(']')} pour la taille.`),
       GI('Pipette ' + K('I'), `Clic : couleur 1, ${K('Alt')}+clic : couleur 2. Avec le pinceau, le pot ou les formes, ${K('Alt')}+clic prend aussi la couleur.`)]],
     ['Couleurs', [GI('Couleur 1 et 2', `Les deux carrés en bas de la palette. ${K('X')} les échange, ${K('D')} remet noir / blanc.`),
       GI('Sélecteur', 'Carré saturation / luminosité, barre de teinte, code hexadécimal modifiable.'),
@@ -1866,16 +1960,18 @@ const GUIDE = [
       GI('Réglables', 'Luminosité / contraste, teinte / saturation, flou, pixellisation, seuil : une fenêtre avec curseurs et <b>aperçu en direct</b>.'),
       GI('Portée', 'Les filtres agissent sur le calque actif, limités à la sélection s\'il y en a une.')]]]],
   ['nav', '🧭', 'Navigation', [[null, [
-    GI('Zoom', `Molette (vers le curseur), loupe ${K('Z')}, ${K('Ctrl++')} / ${K('Ctrl+-')}, ${K('Ctrl+0')} ajuster à l\'écran, ${K('Ctrl+1')} 100 %, ou la liste en bas à droite.`),
+    GI('Zoom', `Molette (vers le curseur), loupe + ${K('Z')}, loupe − ${K('Maj+Z')}, ${K('Ctrl++')} / ${K('Ctrl+-')}, ${K('Ctrl+0')} ajuster à l\'écran, ${K('Ctrl+1')} 100 %, ou la liste en bas à droite.`),
     GI('Se déplacer', `Clic-molette maintenu, ${K('Espace')} maintenu avec n\'importe quel outil, outil main ${K('H')}, flèches du clavier (${K('Maj')} = plus vite).`),
     GI('Pavé tactile', 'Dans Paramètres → Affichage, « Molette = défilement » fait défiler à deux doigts et zoome avec Ctrl.'),
+    GI('Grille', `Bouton grille dans <b>VUE</b> ou ${K('Ctrl+\'')} : quadrillage sur l\'image (pas et couleur dans Paramètres → Affichage, 50 px par défaut). N\'apparaît pas dans les fichiers enregistrés.`),
+    GI('Règles', `Bouton règles dans <b>VUE</b> ou ${K('Ctrl+R')} : graduations en pixels du document en haut et à gauche, avec la position du curseur en rouge. L\'échelle s\'adapte au zoom.`),
     GI('Grille de pixels', 'Apparaît au fort zoom (réglable dans les Paramètres).')]]]],
   ['keys', '⌨️', 'Raccourcis', [[null, [
-    GI('Outils', `${K('V')} déplacer · ${K('M')} rectangle · ${K('O')} ellipse · ${K('L')} lasso · ${K('W')} baguette · ${K('C')} recadrage · ${K('B')} pinceau · ${K('N')} crayon · ${K('E')} gomme · ${K('G')} pot · ${K('Q')} dégradé · ${K('I')} pipette · ${K('T')} texte · ${K('R')} rectangle · ${K('U')} ellipse · ${K('Y')} ligne · ${K('H')} main · ${K('Z')} loupe`),
+    GI('Outils', `${K('V')} déplacer · ${K('M')} rectangle · ${K('O')} ellipse · ${K('L')} lasso · ${K('W')} baguette · ${K('C')} recadrage · ${K('B')} pinceau · ${K('N')} crayon · ${K('E')} gomme · ${K('G')} pot · ${K('Q')} dégradé · ${K('I')} pipette · ${K('S')} tampon · ${K('T')} texte · ${K('R')} rectangle · ${K('U')} ellipse · ${K('Y')} ligne · ${K('H')} main · ${K('Z')} loupe + · ${K('Maj+Z')} loupe −`),
     GI('Fichiers', `${K('Ctrl+N')} nouveau · ${K('Ctrl+O')} ouvrir · ${K('Ctrl+S')} enregistrer · ${K('Ctrl+Maj+S')} enregistrer sous · ${K('Ctrl+Maj+E')} enregistrer en image`),
     GI('Édition', `${K('Ctrl+Z')} annuler · ${K('Ctrl+Y')} rétablir · ${K('Ctrl+C / X / V')} copier, couper, coller · ${K('Suppr')} effacer · ${K('Alt+Suppr')} remplir`),
     GI('Calques', `${K('Ctrl+Maj+N')} nouveau · ${K('Ctrl+J')} calque par copie · ${K('Ctrl+E')} fusionner`),
-    GI('Divers', `${K('[')} ${K(']')} taille · ${K('X')} échanger les couleurs · ${K('D')} noir / blanc · ${K('F1')} guide`)]]]],
+    GI('Divers', `${K('[')} ${K(']')} taille · ${K('X')} échanger les couleurs · ${K('D')} noir / blanc · ${K('Ctrl+R')} règles · ${K('Ctrl+\'')} grille · ${K('F1')} guide`)]]]],
   ['install', '📲', 'Installation & réglages', [[null, [
     GI('Installer l\'appli', 'Depuis GitHub Pages, le bouton vert <b>Installer l\'appli</b> lance l\'installation (Chrome, Edge). Si le navigateur ne la propose pas, le bouton explique comment faire à la main (menu du navigateur, ou « Sur l\'écran d\'accueil » sur iPhone). Installée, MOMO Shop s\'ouvre dans sa propre fenêtre et s\'associe aux fichiers .mms.'),
     GI('Paramètres ⚙', 'Quatre onglets : <b>Général</b> (backup auto, nombre d\'annulations, confirmation à la fermeture), <b>Affichage</b> (animation d\'ouverture, molette, damier, fond de travail, grille de pixels), <b>Documents &amp; enregistrement</b> (taille et fond du nouveau document, qualité JPEG / WEBP), <b>Réinitialiser</b>. Tout est mémorisé sur ce poste.'),
@@ -1938,7 +2034,7 @@ function act(a) {
     case 'redo': return redo();
     case 'resize': return resizeDialog();
     case 'canvassize': return canvasSizeDialog();
-    case 'cropsel': if (sel) return changeCanvas(sel.bbox.w, sel.bbox.h, -sel.bbox.x, -sel.bbox.y); cropRect = null; setTool('crop'); return toast('Ajuste le cadre puis Entrée (ou Valider dans « Outil en cours »).');
+    case 'cropsel': if (cropToSelection()) return; cropRect = null; setTool('crop'); return toast('Ajuste le cadre puis Entrée (ou Valider dans « Outil en cours »).');
     case 'trim': return trimTransparent();
     case 'rot': return rotateDoc(+v);
     case 'flipdoc': return flipDoc(v);
